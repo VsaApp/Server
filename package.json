@@ -19,9 +19,9 @@
   "homepage": "https://github.com/VsaApp/Server#readme",
   "dependencies": {
     "express": "^4.16.3",
+    "fast-html-parser": "^1.0.1",
     "fs": "0.0.1-security",
     "http": "0.0.0",
-    "mysql": "^2.15.0",
     "request": "^2.87.0",
     "socketio": "^1.0.0"
   }

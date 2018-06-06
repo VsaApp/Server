@@ -3,6 +3,7 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
+const sp = require('./sp.js');
 
 let config = {};
 
@@ -17,10 +18,16 @@ if (fs.existsSync('config.json')) {
     throw new Error('Missing password in config');
   }
 
+  sp.setConfig(config);
+
   app.use(express.static('www'));
 
   io.on('connection', client => {
-    client.emit('hello', 'world');
+    let grade = '';
+    client.on('grade', val => {
+      grade = val;
+      client.emit('sp', sp.getPlan(grade));
+    });
   });
 
   http.listen(config.port, () => {
@@ -29,3 +36,4 @@ if (fs.existsSync('config.json')) {
 } else {
   throw new Error('config.json missing');
 }
+sp.downloadSP();
