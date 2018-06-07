@@ -1,6 +1,7 @@
 const request = require('request');
 const parser = require('fast-html-parser');
 const fs = require('fs');
+const path = require('path');
 
 let config = {};
 
@@ -68,7 +69,7 @@ this.downloadSP = () => {
           }
         }
       }
-      fs.writeFileSync('plans/' + jg[i] + '.json', JSON.stringify(plan));
+      fs.writeFileSync(path.resolve('plans', jg[i] + '.json'), JSON.stringify(plan));
     }
     console.log('Downloaded Sp');
   }).auth(config.username, config.password, false);
