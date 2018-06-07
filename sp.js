@@ -7,6 +7,10 @@ let config = {};
 
 this.downloadSP = () => {
   request('http://www.viktoriaschule-aachen.de/sundvplan/sps/left.html', (error, response, body) => {
+    if (response.statusCode != 200) {
+      console.error(body);
+      process.exit(1);
+    }
     const html = parser.parse(body);
     const tables = html.querySelectorAll('table');
     let divs = html.querySelectorAll('div');
