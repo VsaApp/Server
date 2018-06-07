@@ -64,4 +64,5 @@ typings/
 config.json
 
 # plans
-plans/
+sp/
+vp/

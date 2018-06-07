@@ -27,9 +27,6 @@ this.downloadSP = () => {
         }
       }
     }
-    if (!fs.existsSync('plans')) {
-      fs.mkdirSync('plans');
-    }
     for (let i = 0; i < jg.length; i++) {
       let plan = [];
       for (let j = 0; j < tables[i].childNodes.length; j++) {
@@ -73,9 +70,9 @@ this.downloadSP = () => {
           }
         }
       }
-      fs.writeFileSync(path.resolve('plans', jg[i] + '.json'), JSON.stringify(plan));
+      fs.writeFileSync(path.resolve('sp', jg[i] + '.json'), JSON.stringify(plan));
     }
-    console.log('Downloaded Sp');
+    console.log('Downloaded sp');
   }).auth(config.username, config.password, false);
 };
 
@@ -97,15 +94,6 @@ this.strToLesson = (str, multi) => {
       lesson: arr[1].replace(/[0-9]/g, ''),
       room: arr[2]
     };
-  }
-};
-
-this.getPlan = grade => {
-  try {
-    return JSON.parse(fs.readFileSync('plans/' + grade + '.json', 'utf-8'));
-  } catch (e) {
-    console.log(e);
-    return [];
   }
 };
 
