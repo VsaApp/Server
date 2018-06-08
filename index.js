@@ -65,7 +65,7 @@ vp.getVP(false, onVPUpdate);
 setInterval(() => {
   vp.getVP(true, onVPUpdate);
   vp.getVP(false, onVPUpdate);
-}, 10000);
+}, 60000);
 
 function onVPUpdate(data) {
   console.log(JSON.stringify(data));
