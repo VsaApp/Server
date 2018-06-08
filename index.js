@@ -1,7 +1,8 @@
 const express = require('express');
 const fs = require('fs');
-const sp = require('./sp.js');
 const crypto = require('crypto');
+const sp = require('./sp.js');
+const vp = require('./vp.js');
 
 const app = express();
 let config = {};
@@ -30,6 +31,7 @@ if (fs.existsSync('config.json')) {
   }
 
   sp.setConfig(config);
+  vp.setConfig(config);
 
   app.use('/sp', express.static('sp'));
   app.use('/vp', express.static('vp'));
@@ -58,3 +60,13 @@ if (fs.existsSync('config.json')) {
   throw new Error('config.json missing');
 }
 sp.downloadSP();
+vp.getVP(true, onVPUpdate);
+vp.getVP(false, onVPUpdate);
+setInterval(() => {
+  vp.getVP(true, onVPUpdate);
+  vp.getVP(false, onVPUpdate);
+}, 10000);
+
+function onVPUpdate(data) {
+  console.log(JSON.stringify(data));
+}
