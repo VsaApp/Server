@@ -116,8 +116,8 @@ this.getVP = (today, callback) => {
               const lines = (text.match(/\n/g) || []).length + 1;
               const split = text.split('\n');
               if (text.startsWith('Klausur:')) {
-                data.changed.tutor = split[2].split(':')[0];
-                data.changed.room = split[2].split(' ')[split[2].split(' ').length - 1];
+                data.changed.tutor = split[split.length - 2].split(':')[0];
+                data.changed.room = split[split.length - 2].split(' ')[split[split.length - 2].split(' ').length - 1];
                 data.changed.info = split[1].split(' ')[2] + ' ' + split[1].split(' ')[3] + ' Klausur';
               } else {
                 data.changed.info = split[0].substr(3) + 'Freistd.';
