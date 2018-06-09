@@ -7,6 +7,8 @@ let config = {};
 
 let lastToday = '';
 let lastTomorrow = '';
+let vpToday = {};
+let vpTomorrow = {};
 
 this.getVP = (today, callback) => {
   request('http://www.viktoriaschule-aachen.de/sundvplan/vps/' + (today ? 'left' : 'right') + '.html', (error, response, body) => {
@@ -31,6 +33,46 @@ this.getVP = (today, callback) => {
       } else {
         lastTomorrow = time;
       }
+      vpToday = {
+        '5a': [],
+        '5b': [],
+        '5c': [],
+        '6a': [],
+        '6b': [],
+        '6c': [],
+        '7a': [],
+        '7b': [],
+        '7c': [],
+        '8a': [],
+        '8b': [],
+        '8c': [],
+        '9a': [],
+        '9b': [],
+        '9c': [],
+        'EF': [],
+        'Q1': [],
+        'Q2': []
+      };
+      vpTomorrow = {
+        '5a': [],
+        '5b': [],
+        '5c': [],
+        '6a': [],
+        '6b': [],
+        '6c': [],
+        '7a': [],
+        '7b': [],
+        '7c': [],
+        '8a': [],
+        '8b': [],
+        '8c': [],
+        '9a': [],
+        '9b': [],
+        '9c': [],
+        'EF': [],
+        'Q1': [],
+        'Q2': []
+      };
       const table = html.querySelectorAll('table')[0];
       let prevGrade = '';
       for (let i = 1; i < table.childNodes.length; i++) {
@@ -103,8 +145,22 @@ this.getVP = (today, callback) => {
             }
           }
         }
-        fs.writeFileSync(path.resolve('vp', data.grade + '.json'), JSON.stringify(data));
-        callback(data);
+        if (today) {
+          vpToday[data.grade].push(data);
+        } else {
+          vpTomorrow[data.grade].push(data);
+        }
+      }
+      if (today) {
+        Object.keys(vpToday).forEach(key => {
+          callback(vpToday[key]);
+          fs.writeFileSync(path.resolve('vp', 'today', key + '.json'), JSON.stringify(vpToday[key], null, 2));
+        });
+      } else {
+        Object.keys(vpTomorrow).forEach(key => {
+          callback(vpTomorrow[key]);
+          fs.writeFileSync(path.resolve('vp', 'tomorrow', key + '.json'), JSON.stringify(vpTomorrow[key], null, 2));
+        });
       }
       console.log('Downloaded vp of ' + (today ? 'today' : 'tomorrow'));
     }

@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
 const crypto = require('crypto');
 const sp = require('./sp.js');
 const vp = require('./vp.js');
@@ -28,6 +29,12 @@ if (fs.existsSync('config.json')) {
   }
   if (!fs.existsSync('vp')) {
     fs.mkdirSync('vp');
+  }
+  if (!fs.existsSync(path.resolve('vp', 'today'))) {
+    fs.mkdirSync(path.resolve('vp', 'today'));
+  }
+  if (!fs.existsSync(path.resolve('vp', 'tomorrow'))) {
+    fs.mkdirSync(path.resolve('vp', 'tomorrow'));
   }
 
   sp.setConfig(config);
