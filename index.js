@@ -4,6 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 const sp = require('./sp.js');
 const vp = require('./vp.js');
+const firebase = require('./firebase.js');
 
 const app = express();
 let config = {};
@@ -75,5 +76,10 @@ setInterval(() => {
 }, 60000);
 
 function onVPUpdate(data) {
-  console.log(JSON.stringify(data));
+  if (data.length > 0) {
+    firebase.send(data[0].grade, {
+      title: data[0].grade,
+      body: data[0].changed.info
+    });
+  }
 }
