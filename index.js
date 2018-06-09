@@ -77,9 +77,11 @@ setInterval(() => {
 
 function onVPUpdate(data) {
   if (data.length > 0) {
-    firebase.send(data[0].grade, {
-      title: data[0].grade,
-      body: data[0].changed.info
-    });
+    for (let i = 0; i < data.length; i++) {
+      firebase.send(data[i].grade, {
+        title: 'Vetretungsplan ' + data[i].unit + '. Stunde',
+        body: data[i].changed.tutor + ' ' + data[i].changed.info + ' ' + data[i].changed.room
+      });
+    }
   }
 }

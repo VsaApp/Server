@@ -11,9 +11,6 @@ this.send = (topic, notification) => {
   admin.messaging().sendToTopic('/topics/' + topic, {
       notification: notification
     })
-    .then((response) => {
-      console.log('Successfully sent message:', response);
-    })
     .catch((error) => {
       console.log('Error sending message:', error);
     });
