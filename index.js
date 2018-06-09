@@ -79,7 +79,7 @@ function onVPUpdate(data) {
   if (data.length > 0) {
     for (let i = 0; i < data.length; i++) {
       firebase.send(data[i].grade, {
-        title: 'Vetretungsplan ' + data[i].unit + '. Stunde',
+        title: data[i].unit + '. Stunde (' + data[i].date + ')',
         body: data[i].changed.tutor + ' ' + data[i].changed.info + ' ' + data[i].changed.room
       });
     }
