@@ -64,7 +64,7 @@ this.downloadSP = () => {
                 } else {
                   lessons2.push(this.strToLesson(lessons[0], false));
                 }
-                plan[k - 1].lessons[j - 1].push(lessons2);
+                plan[k - 1].lessons[j - 1] = lessons2;
               }
             }
           }
