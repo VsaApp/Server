@@ -17,9 +17,11 @@ this.getVP = (today, callback) => {
       process.exit(1);
     }
     const html = parser.parse(body);
-    const datetime = html.querySelectorAll('div')[1].childNodes[0].rawText.replace('Viktoriaschule Aachen, den ', ''); // Viktoriaschule Aachen, den 08.06.18 um 07:31
-    const date = datetime.split(' um ')[0];
-    const time = datetime.split(' um ')[1];
+    const dateStr = html.querySelectorAll('div')[0].childNodes[0].rawText.substr(1).replace('-Klassen-Vertretungsplan für ', '');
+    const time = html.querySelectorAll('div')[1].childNodes[0].rawText.replace('Viktoriaschule Aachen, den ', '').split(' um ')[1];
+    const date = new Date(dateStr);
+    date.setHours(date.getHours() + 1);
+    const weekday = dateStr.split(', ')[0];
     let update = false;
     if (today && lastToday !== time) {
       update = true;
@@ -79,6 +81,7 @@ this.getVP = (today, callback) => {
         let data = {
           date: date,
           time: time,
+          weekday: weekday,
           grade: '',
           unit: '',
           changed: {

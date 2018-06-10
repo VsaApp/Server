@@ -75,12 +75,31 @@ setInterval(() => {
   vp.getVP(false, onVPUpdate);
 }, 60000);
 
+const days = [
+  'Sonntag',
+  'Montag',
+  'Dienstag',
+  'Mittwoch',
+  'Donnerstag',
+  'Freitag',
+  'Samstag'
+];
+
 function onVPUpdate(data) {
   if (data.length > 0) {
-    for (let i = 0; i < data.length; i++) {
-      firebase.send(data[i].grade, {
-        title: data[i].unit + '. Stunde (' + data[i].date + ')',
-        body: data[i].changed.tutor + ' ' + data[i].changed.info + ' ' + data[i].changed.room
+    if (data.length > 1) {
+      let text = '';
+      for (let i = 0; i < data.length; i++) {
+        text += data[i].unit + '. Stunde ' + data[i].changed.tutor + ' ' + data[i].changed.info + ' ' + data[i].changed.room + '\n';
+      }
+      firebase.send(data[0].grade, {
+        title: data[0].weekday,
+        text: text.slice(0, -1)
+      });
+    } else {
+      firebase.send(data[0].grade, {
+        title: data[0].weekday + ' ' + data[0].unit + '. Stunde',
+        text: data[0].changed.tutor + ' ' + data[0].changed.info + ' ' + data[0].changed.room
       });
     }
   }

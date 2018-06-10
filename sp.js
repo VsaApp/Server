@@ -42,8 +42,17 @@ this.downloadSP = () => {
           }
           if (j == 0) {
             if (k != 0) {
+              let days = {
+                'Mo': 'Montag',
+                'Di': 'Dienstag',
+                'Mi': 'Mittwoch',
+                'Do': 'Donnerstag',
+                'Fr': 'Freitag',
+                'Sa': 'Samstag',
+                'So': 'Sonntag'
+              };
               plan[k - 1] = {
-                name: lessons[0],
+                name: days[lessons[0]],
                 lessons: []
               };
             }

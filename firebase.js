@@ -7,9 +7,9 @@ admin.initializeApp({
   databaseURL: 'https://vsaapp-12965.firebaseio.com'
 });
 
-this.send = (topic, notification) => {
+this.send = (topic, data) => {
   admin.messaging().sendToTopic('/topics/' + topic, {
-      notification: notification
+      data: data
     })
     .catch((error) => {
       console.log('Error sending message:', error);
