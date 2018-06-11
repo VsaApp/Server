@@ -134,7 +134,7 @@ this.getVP = (today, callback) => {
               if (lines == 1) {
                 if (text === 'Studienzeit') {
                   data.lesson = g.split(' ')[1] + ' ' + g.split(' ')[2];
-                  data.changed.info = text;
+                  data.changed.info = 'Freistunde';
                 } else {
                   data.lesson = g.split(' ')[1];
                   data.changed.info = text;
