@@ -79,7 +79,7 @@ this.getVP = (today, callback) => {
       let prevGrade = '';
       for (let i = 1; i < table.childNodes.length; i++) {
         let data = {
-          date: date,
+          date: date.getUTCDate() + '.' + (date.getUTCMonth() + 1) + '.' + date.getUTCFullYear(),
           time: time,
           weekday: weekday,
           grade: '',
