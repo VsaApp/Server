@@ -68,8 +68,8 @@ if (fs.existsSync('config.json')) {
   throw new Error('config.json missing');
 }
 sp.downloadSP();
-vp.getVP(true, onVPUpdate);
-vp.getVP(false, onVPUpdate);
+vp.getVP(true, () => {});
+vp.getVP(false, () => {});
 setInterval(() => {
   vp.getVP(true, onVPUpdate);
   vp.getVP(false, onVPUpdate);
