@@ -23,17 +23,17 @@ this.getVP = (today, callback) => {
     date.setHours(date.getHours() + 1);
     const weekday = dateStr.split(', ')[0];
     let update = false;
-    if (today && lastToday !== time) {
+    if (today && lastToday !== dateStr + time) {
       update = true;
     }
-    if (!today && lastTomorrow !== time) {
+    if (!today && lastTomorrow !== dateStr + time) {
       update = true;
     }
     if (update) {
       if (today) {
-        lastToday = time;
+        lastToday = dateStr + time;
       } else {
-        lastTomorrow = time;
+        lastTomorrow = dateStr + time;
       }
       vpToday = {
         '5a': [],
