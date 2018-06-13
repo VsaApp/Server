@@ -75,13 +75,31 @@ this.getVP = (today, callback) => {
         'Q1': [],
         'Q2': []
       };
+      for (let x = 0; x < 12; x++) {
+
+      }
       const table = html.querySelectorAll('table')[0];
       let prevGrade = '';
-      for (let i = 1; i < table.childNodes.length; i++) {
-        let data = {
+      // Add all timestemps...
+      for (var grade in vpToday) {
+        vpToday[grade] = {
           date: date.getUTCDate() + '.' + (date.getUTCMonth() + 1) + '.' + date.getUTCFullYear(),
           time: time,
           weekday: weekday,
+          changes: []
+        };
+      }
+      for (var grade2 in vpTomorrow) {
+        vpTomorrow[grade2] = {
+          date: date.getUTCDate() + '.' + (date.getUTCMonth() + 1) + '.' + date.getUTCFullYear(),
+          time: time,
+          weekday: weekday,
+          changes: []
+        };
+      }
+      // Read the vp...
+      for (let i = 1; i < table.childNodes.length; i++) {
+        let data = {
           grade: '',
           unit: '',
           lesson: '',
@@ -155,11 +173,12 @@ this.getVP = (today, callback) => {
           }
         }
         if (today) {
-          vpToday[data.grade].push(data);
+          vpToday[data.grade].changes.push(data);
         } else {
-          vpTomorrow[data.grade].push(data);
+          vpTomorrow[data.grade].changes.push(data);
         }
       }
+
       if (today) {
         Object.keys(vpToday).forEach(key => {
           callback(vpToday[key]);
