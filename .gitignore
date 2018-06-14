@@ -69,3 +69,7 @@ vp/
 
 # firebase
 firebase.json
+
+package-lock\.json
+
+package\.json
