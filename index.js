@@ -86,6 +86,8 @@ const days = [
 ];
 
 function onVPUpdate(data) {
+  const header = data;
+  data = data.changes;
   if (data.length > 0) {
     if (data.length > 1) {
       let text = '';
@@ -93,12 +95,12 @@ function onVPUpdate(data) {
         text += data[i].unit + '. Stunde ' + data[i].changed.tutor + ' ' + data[i].changed.info + ' ' + data[i].changed.room + '\n';
       }
       firebase.send(data[0].grade, {
-        title: data[0].weekday,
+        title: header.weekday,
         text: text.slice(0, -1)
       });
     } else {
       firebase.send(data[0].grade, {
-        title: data[0].weekday + ' ' + data[0].unit + '. Stunde',
+        title: header.weekday + ' ' + data[0].unit + '. Stunde',
         text: data[0].changed.tutor + ' ' + data[0].changed.info + ' ' + data[0].changed.room
       });
     }
