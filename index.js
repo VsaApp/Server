@@ -4,7 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 const sp = require('./sp.js');
 const vp = require('./vp.js');
-const tutor = require('./tutorlist.js');
+const tutors = require('./tutors.js');
 const firebase = require('./firebase.js');
 
 const app = express();
@@ -26,8 +26,8 @@ if (fs.existsSync('config.json')) {
 
   config.passwordsha = crypto.createHash('sha256').update(config.password).digest('hex');
 
-  if (!fs.existsSync('tutor')) {
-    fs.mkdirSync('tutor');
+  if (!fs.existsSync('tutors')) {
+    fs.mkdirSync('tutors');
   }
   if (!fs.existsSync('sp')) {
     fs.mkdirSync('sp');
@@ -44,9 +44,9 @@ if (fs.existsSync('config.json')) {
 
   sp.setConfig(config);
   vp.setConfig(config);
-  tutor.setConfig(config);
+  tutors.setConfig(config);
 
-  app.use('/tutor', express.static('tutor'));
+  app.use('/tutors', express.static('tutors'));
   app.use('/sp', express.static('sp'));
   app.use('/vp', express.static('vp'));
   app.get('/', (req, res) => {
@@ -73,7 +73,7 @@ if (fs.existsSync('config.json')) {
 } else {
   throw new Error('config.json missing');
 }
-tutor.downloadTutorPDF();
+tutors.downloadTutorPDF();
 sp.downloadSP();
 vp.getVP(true, () => {});
 vp.getVP(false, () => {});
