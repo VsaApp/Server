@@ -53,7 +53,8 @@ this.getVP = (today, callback) => {
         '9c': [],
         'EF': [],
         'Q1': [],
-        'Q2': []
+        'Q2': [],
+        '13': []
       };
       vpTomorrow = {
         '5a': [],
@@ -73,7 +74,8 @@ this.getVP = (today, callback) => {
         '9c': [],
         'EF': [],
         'Q1': [],
-        'Q2': []
+        'Q2': [],
+        '13': []
       };
       for (let x = 0; x < 12; x++) {
 
@@ -138,10 +140,14 @@ this.getVP = (today, callback) => {
               const lines = (text.match(/\n/g) || []).length + 1;
               const split = text.split('\n');
               if (text.startsWith('Klausur:')) {
-                data.lesson = split[1].split(' ')[2] + ' ' + split[1].split(' ')[3];
+                if (split[1] !== 'Nachschreiber') {
+                  data.lesson = split[1].split(' ')[2] + (split[1].split(' ')[3] === undefined ? '' : ' ' + split[1].split(' ')[3]);
+                  data.changed.info = split[1].split(' ')[2] + (split[1].split(' ')[3] === undefined ? '' : ' ' + split[1].split(' ')[3]) + ' Klausur';
+                } else {
+                  data.changed.info = 'Nachschreiber Klausur';
+                }
                 data.changed.tutor = split[split.length - 2].split(':')[0];
                 data.changed.room = split[split.length - 2].split(' ')[split[split.length - 2].split(' ').length - 1];
-                data.changed.info = split[1].split(' ')[2] + ' ' + split[1].split(' ')[3] + ' Klausur';
               } else {
                 data.lesson = split[0].substr(3).trim();
                 data.changed.info = split[0].substr(3) + 'Freistd.';
