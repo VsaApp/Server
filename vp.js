@@ -53,7 +53,8 @@ this.getVP = (today, callback) => {
         '9c': [],
         'EF': [],
         'Q1': [],
-        'Q2': []
+        'Q2': [],
+        '13': []
       };
       vpTomorrow = {
         '5a': [],
@@ -73,7 +74,8 @@ this.getVP = (today, callback) => {
         '9c': [],
         'EF': [],
         'Q1': [],
-        'Q2': []
+        'Q2': [],
+        '13': []
       };
       for (let x = 0; x < 12; x++) {
 
