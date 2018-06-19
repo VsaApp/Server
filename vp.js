@@ -130,48 +130,55 @@ this.getVP = (today, callback) => {
             }
             data.unit = text.split(' ')[1].slice(0, -1);
           } else if (j == 2) {
-            if (text === '') {
-              for (let l = 0; l < table.childNodes[i].childNodes[1].childNodes.length; l++) {
-                text += table.childNodes[i].childNodes[1].childNodes[l].childNodes[0].rawText + '\n';
-              }
-              while (text.includes('  ')) {
-                text = text.replace('  ', ' ');
-              }
-              const lines = (text.match(/\n/g) || []).length + 1;
-              const split = text.split('\n');
-              if (text.startsWith('Klausur:')) {
-                if (split[1] !== 'Nachschreiber') {
-                  data.lesson = split[1].split(' ')[2] + (split[1].split(' ')[3] === undefined ? '' : ' ' + split[1].split(' ')[3]);
-                  data.changed.info = split[1].split(' ')[2] + (split[1].split(' ')[3] === undefined ? '' : ' ' + split[1].split(' ')[3]) + ' Klausur';
-                } else {
-                  data.changed.info = 'Nachschreiber Klausur';
+            if (data.grade === '9b') {
+              if (text === '') {
+                for (let l = 0; l < table.childNodes[i].childNodes[1].childNodes.length; l++) {
+                  text += table.childNodes[i].childNodes[1].childNodes[l].childNodes[0].rawText + '\n';
                 }
-                data.changed.teacher = split[split.length - 2].split(':')[0];
-                data.changed.room = split[split.length - 2].split(' ')[split[split.length - 2].split(' ').length - 1];
-              } else {
-                data.lesson = split[0].substr(3).trim();
-                data.changed.info = split[0].substr(3) + 'Freistd.';
-              }
-            } else {
-              const lines = (text.match(/\n/g) || []).length + 1;
-              const g = table.childNodes[i].childNodes[1].childNodes[0].childNodes[0].rawText;
-              if (lines == 1) {
-                if (text === 'Studienzeit') {
-                  data.lesson = g.split(' ')[1] + ' ' + g.split(' ')[2];
-                  data.changed.info = 'Freistunde';
-                } else {
-                  data.lesson = g.split(' ')[1];
-                  data.changed.info = text;
+                while (text.includes('  ')) {
+                  text = text.replace('  ', ' ');
                 }
-              } else {
+                const lines = (text.match(/\n/g) || []).length + 1;
                 const split = text.split('\n');
-                data.lesson = g.split(' ')[1];
-                data.changed.teacher = split[0].split(' ')[0];
-                data.changed.info = split[0].split(' ')[1];
-                for (let m = 0; m < split.length; m++) {
-                  if (split[m].startsWith('R-Ändg. ')) {
-                    data.changed.room = split[m].replace('R-Ändg. ', '');
-                    break;
+                if (text.startsWith('Klausur:')) {
+                  if (split[1] !== 'Nachschreiber') {
+                    data.lesson = split[1].split(' ')[2] + (split[1].split(' ')[3] === undefined ? '' : ' ' + split[1].split(' ')[3]);
+                    data.changed.info = split[1].split(' ')[2] + (split[1].split(' ')[3] === undefined ? '' : ' ' + split[1].split(' ')[3]) + ' Klausur';
+                  } else {
+                    data.changed.info = 'Nachschreiber Klausur';
+                  }
+                  data.changed.teacher = split[split.length - 2].split(':')[0];
+                  data.changed.room = split[split.length - 2].split(' ')[split[split.length - 2].split(' ').length - 1];
+                } else {
+                  data.lesson = split[0].substr(3).trim();
+                  data.changed.info = split[0].substr(3) + 'Freistd.';
+                }
+              } else {
+                const lines = (text.match(/\n/g) || []).length + 1;
+                const g = table.childNodes[i].childNodes[1].childNodes[0].childNodes[0].rawText;
+                if (lines == 1) {
+                  if (text === 'Studienzeit') {
+                    data.lesson = g.split(' ')[1] + ' ' + g.split(' ')[2];
+                    data.changed.info = 'Freistunde';
+                  } else {
+                    data.lesson = g.split(' ')[1];
+                    if (text.startsWith('R-Ändg. ')) {
+                      data.changed.room = text.split(' ')[1];
+                      data.changed.info = text.split(' ')[0];
+                    } else {
+                      data.changed.info = text;
+                    }
+                  }
+                } else {
+                  const split = text.split('\n');
+                  data.lesson = g.split(' ')[1];
+                  data.changed.teacher = split[0].split(' ')[0];
+                  data.changed.info = split[0].split(' ')[1];
+                  for (let m = 0; m < split.length; m++) {
+                    if (split[m].startsWith('R-Ändg. ')) {
+                      data.changed.room = split[m].split(' ')[1];
+                      break;
+                    }
                   }
                 }
               }
