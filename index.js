@@ -6,6 +6,7 @@ const sp = require('./sp.js');
 const vp = require('./vp.js');
 const teachersShort = require('./teachersShort.js');
 const teachersMail = require('./teachersMail.js');
+const dates = require('./dates.js');
 const firebase = require('./firebase.js');
 
 const app = express();
@@ -30,6 +31,9 @@ if (fs.existsSync('config.json')) {
   if (!fs.existsSync('teachers')) {
     fs.mkdirSync('teachers');
   }
+  if (!fs.existsSync('dates')) {
+    fs.mkdirSync('dates');
+  }
   if (!fs.existsSync('sp')) {
     fs.mkdirSync('sp');
   }
@@ -49,6 +53,7 @@ if (fs.existsSync('config.json')) {
   teachersMail.setConfig(config);
 
   app.use('/teachers', express.static('teachers'));
+  app.use('/dates', express.static('dates'));
   app.use('/sp', express.static('sp'));
   app.use('/vp', express.static('vp'));
   app.get('/', (req, res) => {
@@ -75,6 +80,7 @@ if (fs.existsSync('config.json')) {
 } else {
   throw new Error('config.json missing');
 }
+dates.downloadDatesPDF();
 
 let shorts = [];
 let mails = [];
