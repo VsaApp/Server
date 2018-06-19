@@ -9,7 +9,9 @@ admin.initializeApp({
 
 this.send = (topic, data) => {
   admin.messaging().sendToTopic('/topics/' + topic, {
-      data: data
+      data: {
+        data: data
+      }
     })
     .catch((error) => {
       console.log('Error sending message:', error);
