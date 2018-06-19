@@ -107,7 +107,7 @@ this.getVP = (today, callback) => {
           lesson: '',
           changed: {
             info: '',
-            tutor: '',
+            teacher: '',
             room: ''
           }
         };
@@ -146,7 +146,7 @@ this.getVP = (today, callback) => {
                 } else {
                   data.changed.info = 'Nachschreiber Klausur';
                 }
-                data.changed.tutor = split[split.length - 2].split(':')[0];
+                data.changed.teacher = split[split.length - 2].split(':')[0];
                 data.changed.room = split[split.length - 2].split(' ')[split[split.length - 2].split(' ').length - 1];
               } else {
                 data.lesson = split[0].substr(3).trim();
@@ -166,7 +166,7 @@ this.getVP = (today, callback) => {
               } else {
                 const split = text.split('\n');
                 data.lesson = g.split(' ')[1];
-                data.changed.tutor = split[0].split(' ')[0];
+                data.changed.teacher = split[0].split(' ')[0];
                 data.changed.info = split[0].split(' ')[1];
                 for (let m = 0; m < split.length; m++) {
                   if (split[m].startsWith('R-Ändg. ')) {

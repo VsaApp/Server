@@ -93,13 +93,13 @@ this.strToLesson = (str, multi) => {
   arr = arr.filter(el => el !== '');
   if (multi) {
     return {
-      tutor: arr[1],
+      teacher: arr[1],
       lesson: arr[0],
       room: arr[2]
     };
   } else {
     return {
-      tutor: arr[0],
+      teacher: arr[0],
       lesson: arr[1],
       room: arr[2]
     };
