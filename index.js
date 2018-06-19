@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const sp = require('./sp.js');
 const vp = require('./vp.js');
 const tutors = require('./tutors.js');
+const dates = require('./dates.js');
 const firebase = require('./firebase.js');
 
 const app = express();
@@ -29,6 +30,9 @@ if (fs.existsSync('config.json')) {
   if (!fs.existsSync('tutors')) {
     fs.mkdirSync('tutors');
   }
+  if (!fs.existsSync('dates')) {
+    fs.mkdirSync('dates');
+  }
   if (!fs.existsSync('sp')) {
     fs.mkdirSync('sp');
   }
@@ -47,6 +51,7 @@ if (fs.existsSync('config.json')) {
   tutors.setConfig(config);
 
   app.use('/tutors', express.static('tutors'));
+  app.use('/dates', express.static('dates'));
   app.use('/sp', express.static('sp'));
   app.use('/vp', express.static('vp'));
   app.get('/', (req, res) => {
@@ -74,6 +79,7 @@ if (fs.existsSync('config.json')) {
   throw new Error('config.json missing');
 }
 tutors.downloadTutorPDF();
+dates.downloadDatesPDF();
 sp.downloadSP();
 vp.getVP(true, () => {});
 vp.getVP(false, () => {});
