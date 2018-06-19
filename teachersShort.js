@@ -5,16 +5,18 @@ const PDFParser = require('pdf2json');
 
 let config = {};
 
-this.downloadTutorPDF = () => {
+this.downloadTeacherPDF = () => {
   const p = this;
-  const stream = fs.createWriteStream(path.resolve('tutors', 'list.pdf'));
-  request('http://www.viktoriaschule-aachen.de/index.php?menuid=41&downloadid=80').pipe(stream);
-  stream.on('finish', () => {
-    p.readTutorList();
+  return new Promise((resolve, reject) => {
+    const stream = fs.createWriteStream(path.resolve('teachers', 'shorts.pdf'));
+    request('http://www.viktoriaschule-aachen.de/index.php?menuid=41&downloadid=80').pipe(stream);
+    stream.on('finish', () => {
+      p.readTeacherList(resolve, reject);
+    });
   });
 };
 
-this.readTutorList = () => {
+this.readTeacherList = (resolve, reject) => {
   const pdfParser = new PDFParser();
 
   pdfParser.on('pdfParser_dataError', errData => {
@@ -22,7 +24,7 @@ this.readTutorList = () => {
   });
 
   pdfParser.on('pdfParser_dataReady', pdfData => {
-    let tutorList = [];
+    let teacherList = [];
     const pages = pdfData.formImage.Pages;
     pages.forEach(page => {
       let lines = [];
@@ -40,9 +42,9 @@ this.readTutorList = () => {
           tempValues.push(text);
         }
       });
-      // Convert lines to tutors...
+      // Convert lines to teachers...
       lines.forEach(function(line) {
-        let tutor = {
+        let teacher = {
           'longName': '',
           'shortName': '',
           'subjects': []
@@ -50,21 +52,21 @@ this.readTutorList = () => {
         for (let i = 0; i < line.length; i++) {
           const value = line[i].trim();
           if (value.length == 3 && value === value.toUpperCase()) {
-            tutor.shortName = value;
+            teacher.shortName = value;
           } else if (value.length <= 2) {
-            tutor.subjects.push(value);
+            teacher.subjects.push(value);
           } else {
-            tutor.longName = value;
+            teacher.longName = value;
           }
         }
-        tutorList.push(tutor);
+        teacherList.push(teacher);
       });
     });
-    fs.writeFileSync(path.resolve('tutors', 'list.json'), JSON.stringify(tutorList, null, 2));
-    console.log('Downloaded teachers');
+    resolve(teacherList);
+    console.log('Downloaded teacher\'s shortnames');
   });
 
-  pdfParser.loadPDF(path.resolve('tutors', 'list.pdf'));
+  pdfParser.loadPDF(path.resolve('teachers', 'shorts.pdf'));
 };
 
 this.setConfig = c => {

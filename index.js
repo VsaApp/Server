@@ -4,7 +4,8 @@ const path = require('path');
 const crypto = require('crypto');
 const sp = require('./sp.js');
 const vp = require('./vp.js');
-const tutors = require('./tutors.js');
+const teachersShort = require('./teachersShort.js');
+const teachersMail = require('./teachersMail.js');
 const firebase = require('./firebase.js');
 
 const app = express();
@@ -26,8 +27,8 @@ if (fs.existsSync('config.json')) {
 
   config.passwordsha = crypto.createHash('sha256').update(config.password).digest('hex');
 
-  if (!fs.existsSync('tutors')) {
-    fs.mkdirSync('tutors');
+  if (!fs.existsSync('teachers')) {
+    fs.mkdirSync('teachers');
   }
   if (!fs.existsSync('sp')) {
     fs.mkdirSync('sp');
@@ -44,9 +45,10 @@ if (fs.existsSync('config.json')) {
 
   sp.setConfig(config);
   vp.setConfig(config);
-  tutors.setConfig(config);
+  teachersShort.setConfig(config);
+  teachersMail.setConfig(config);
 
-  app.use('/tutors', express.static('tutors'));
+  app.use('/teachers', express.static('teachers'));
   app.use('/sp', express.static('sp'));
   app.use('/vp', express.static('vp'));
   app.get('/', (req, res) => {
@@ -73,24 +75,37 @@ if (fs.existsSync('config.json')) {
 } else {
   throw new Error('config.json missing');
 }
-tutors.downloadTutorPDF();
+
+let shorts = [];
+let mails = [];
+
+teachersShort.downloadTeacherPDF().then(teacherList => {
+  shorts = teacherList;
+  checkTeachers();
+});
+teachersMail.downloadTeacherPDF().then(teacherList => {
+  mails = teacherList;
+  checkTeachers();
+});
+
+function checkTeachers() {
+  if (shorts.length > 0 && mails.length > 0) {
+    for (let i = 0; i < shorts.length; i++) {
+      shorts[i].gender = (mails[i].startsWith('Herr ') ? 'male' : 'female');
+    }
+    fs.writeFileSync(path.resolve('teachers', 'list.json'), JSON.stringify(shorts, null, 2));
+  }
+}
+
 sp.downloadSP();
+
 vp.getVP(true, () => {});
 vp.getVP(false, () => {});
+
 setInterval(() => {
   vp.getVP(true, onVPUpdate);
   vp.getVP(false, onVPUpdate);
 }, 60000);
-
-const days = [
-  'Sonntag',
-  'Montag',
-  'Dienstag',
-  'Mittwoch',
-  'Donnerstag',
-  'Freitag',
-  'Samstag'
-];
 
 function onVPUpdate(data) {
   if (data.changes.length > 0) {
