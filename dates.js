@@ -67,7 +67,7 @@ this.readDatesList = () => {
     });
 
     let dates = {
-      'holdiays': [],
+      'holidays': [],
       'openDoorDay': {},
       'freeDays': [],
       'consultationDays': [],
@@ -89,12 +89,12 @@ this.readDatesList = () => {
 
       switch (linenumber) {
         case 0:
-          let holdiay = {
+          let holiday = {
             'name': fragments[0],
             'start': {},
             'end': {}
           };
-          dates.holdiays.push(holdiay);
+          dates.holidays.push(holiday);
           linenumber++;
           break;
         case 1:
@@ -102,7 +102,7 @@ this.readDatesList = () => {
           day.day = parseInt(fragments[1].substring(0, 2));
           day.month = fragments[2];
           day.year = parseInt(fragments[3]);
-          dates.holdiays[dates.holdiays.length - 1].start = day;
+          dates.holidays[dates.holidays.length - 1].start = day;
           linenumber++;
           break;
         case 2:
@@ -110,7 +110,7 @@ this.readDatesList = () => {
           day.day = parseInt(fragments[1].substring(0, 2));
           day.month = fragments[2];
           day.year = parseInt(fragments[3]);
-          dates.holdiays[dates.holdiays.length - 1].end = day;
+          dates.holidays[dates.holidays.length - 1].end = day;
           linenumber = 0;
           break;
       }
@@ -151,8 +151,8 @@ this.readDatesList = () => {
     }
 
     // Get all consultation days...
-    for (let j = 0; j < sections.consultationDays.length; j++) {
-      entry = sections.consultationDays[j];
+    for (let i = 0; i < sections.consultationDays.length; i++) {
+      entry = sections.consultationDays[i];
       day = {
         'description': '',
         'time': '',
@@ -163,11 +163,11 @@ this.readDatesList = () => {
       };
       if (entry.length == 2) {
         if (!isNaN(entry[0]) && entry[1] == ".") {
-          entry = sections.consultationDays[j + 1];
+          entry = sections.consultationDays[i + 1];
 
           let fragments = entry.split(" und ");
-          for (let x = 0; x < fragments.length; x++) {
-            fragment = fragments[x];
+          for (let j = 0; j < fragments.length; j++) {
+            fragment = fragments[j];
             if (fragments.length == 1) day.time = fragment.split("(")[1].split(")")[0];
             else day.time = entry.split("(")[1].split(")")[0];
             day.weekday = fragment.split(",")[0];
@@ -186,15 +186,15 @@ this.readDatesList = () => {
     }
 
     // Get all testimony conferences...
-    for (let z = 0; z < sections.conferences.length; z++) {
-      entry = sections.conferences[z];
+    for (let i = 0; i < sections.conferences.length; i++) {
+      entry = sections.conferences[i];
       if (entry == "\uf0b7") {
-        entry = sections.conferences[z + 1];
+        entry = sections.conferences[i + 1];
         if (entry == 'Zeugnisausgabe') {
-          entry = sections.conferences[z + 2].split(":")[1].trim();
+          entry = sections.conferences[i + 2].split(":")[1].trim();
           dates.gradesReleases.push({
             'desription': 'Zeugnisausgabe',
-            'schoolOff': sections.conferences[z + 3],
+            'schoolOff': sections.conferences[i + 3],
             'day': {
               'weekday': entry.split(", ")[0],
               'day': parseInt(entry.split(", ")[1].split(" ")[0].substring(0, 2)),
