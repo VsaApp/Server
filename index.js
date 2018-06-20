@@ -6,6 +6,7 @@ const sp = require('./sp.js');
 const vp = require('./vp.js');
 const teachersShort = require('./teachersShort.js');
 const teachersMail = require('./teachersMail.js');
+const cafetoria = require('./cafetoria');
 const dates = require('./dates.js');
 const firebase = require('./firebase.js');
 
@@ -74,6 +75,7 @@ if (fs.existsSync('config.json')) {
     }
     res.send('0');
   });
+  cafetoria.host(app);
   app.listen(config.port, () => {
     console.log('Listening on *:' + config.port);
   });
