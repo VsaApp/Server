@@ -69,7 +69,11 @@ this.host = app => {
                 time: '',
                 price: 0.0
               },
-              snack: {}
+              snack: {
+                food: '',
+                time: '',
+                price: 0.0
+              }
             };
             for (let j = 0; j < row.childNodes.length; j++) {
               const el = row.childNodes[j];
