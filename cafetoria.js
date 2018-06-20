@@ -37,6 +37,12 @@ this.host = app => {
           url: 'https://www.opc-asp.de/vs-aachen/menuplan.php?KID=' + req.query.id,
           jar: cookieJar
         }, (error, response, body) => {
+          if (response.statusCode != 200) {
+            res.send({
+              error: 'Invalid credentials'
+            });
+            return;
+          }
           const html = parser.parse(body);
           const saldo = html.querySelectorAll('#saldoOld')[0].childNodes[0].rawText.replace(',', '.');
           const menue = html.querySelectorAll('#MenuePlanTabelle')[0];
