@@ -1,5 +1,11 @@
 {
   "port": 9000,
   "username": "theusername",
-  "password": "thepassword"
+  "password": "thepassword",
+  "genders": {
+    "HNZ": "male",
+    "HIN": "female",
+    "SND": "male",
+    "SER": "female"
+  }
 }

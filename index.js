@@ -88,18 +88,43 @@ let shorts = [];
 let mails = [];
 
 teachersShort.downloadTeacherPDF().then(teacherList => {
+  teacherList = teacherList.sort((a, b) => {
+    const textA = a.longName.toUpperCase();
+    const textB = b.longName.toUpperCase();
+    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+  });
   shorts = teacherList;
   checkTeachers();
 });
 teachersMail.downloadTeacherPDF().then(teacherList => {
+  teacherList = teacherList.sort((a, b) => {
+    const textA = a.replace('Herr ').replace('Frau ').toUpperCase();
+    const textB = b.replace('Herr ').replace('Frau ').toUpperCase();
+    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+  });
   mails = teacherList;
   checkTeachers();
 });
 
+function overrideGender(short) {
+  if ('genders' in config) {
+    if (short in config.genders) {
+      return config.genders[short];
+    }
+  } else {
+    return null;
+  }
+}
+
 function checkTeachers() {
   if (shorts.length > 0 && mails.length > 0) {
     for (let i = 0; i < shorts.length; i++) {
-      shorts[i].gender = (mails[i].startsWith('Herr ') ? 'male' : 'female');
+      const gender = overrideGender(shorts[i].shortName);
+      if (gender) {
+        shorts[i].gender = gender;
+      } else {
+        shorts[i].gender = (mails[i].startsWith('Herr ') ? 'male' : 'female');
+      }
     }
     fs.writeFileSync(path.resolve('teachers', 'list.json'), JSON.stringify(shorts, null, 2));
   }
