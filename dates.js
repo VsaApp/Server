@@ -97,7 +97,7 @@ this.readDatesList = () => {
           linenumber++;
           break;
         case 1:
-          day.weekday = fragments[0].replace(':', '');
+          day.weekday = fragments[0].replace(':', '').replace(',', '');
           day.day = parseInt(fragments[1].substring(0, 2));
           day.month = fragments[2];
           day.year = parseInt(fragments[3]);
@@ -128,7 +128,7 @@ this.readDatesList = () => {
         };
       } else if (entry == 'Dafür unterrichtsfrei am') {
         dates.freeDays.push({
-          'desription': 'Ersatz für Tag der offenen Tür',
+          'description': 'Ersatz für Tag der offenen Tür',
           'weekday': sections.bridgeDays[i + 1],
           'day': parseInt(sections.bridgeDays[i + 3].split(' ')[1].substring(0, 2)),
           'month': sections.bridgeDays[i + 3].split(' ')[2],
@@ -191,7 +191,7 @@ this.readDatesList = () => {
         if (entry == 'Zeugnisausgabe') {
           entry = sections.conferences[i + 2].split(':')[1].trim();
           dates.gradesReleases.push({
-            'desription': 'Zeugnisausgabe',
+            'description': 'Zeugnisausgabe',
             'schoolOff': sections.conferences[i + 3],
             'day': {
               'weekday': entry.split(', ')[0],
@@ -202,8 +202,8 @@ this.readDatesList = () => {
           });
         } else if (entry.split(', ').length > 2) {
           dates.conferences.push({
-            'desription': entry.split(', ')[entry.split(', ').length - 1],
-            'class': entry.split('(')[1].split(')')[0].split(', '),
+            'description': entry.split(', ')[entry.split(', ').length - 1],
+            'grade': entry.split('(')[1].split(')')[0].split(', '),
             'day': {
               'weekday': entry.split(', ')[0],
               'day': parseInt(entry.split(', ')[1].split(' ')[0].substring(0, 2)),
@@ -218,8 +218,8 @@ this.readDatesList = () => {
             const days = fragments[y].split('/');
             for (let index = 0; index < fragments.length; index++) {
               dates.conferences.push({
-                'desription': 'Kurzstunden',
-                'class': ['S1', 'S2'],
+                'description': 'Kurzstunden',
+                'grade': ['S1', 'S2'],
                 'day': {
                   'weekday': null,
                   'day': parseInt(days[index].substring(0, 2)),
@@ -243,7 +243,7 @@ this.readDatesList = () => {
         }
         // Example entry: 'Mittwoch, 16. Mai 2018'
         dates.freeDays.push({
-          'desription': sections.others[i + 1].replace(':', ''),
+          'description': sections.others[i + 1].replace(':', ''),
           'weekday': entry.split(' ')[0],
           'day': parseInt(entry.split(' ')[1].substring(0, 2)),
           'month': entry.split(' ')[2],
