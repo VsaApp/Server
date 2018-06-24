@@ -46,7 +46,7 @@ this.host = app => {
           const html = parser.parse(body);
           const saldo = html.querySelectorAll('#saldoOld')[0].childNodes[0].rawText.replace(',', '.');
           const menue = html.querySelectorAll('#MenuePlanTabelle')[0];
-          send.menue = [];
+          send.menues = [];
           for (let i = 0; i < 5; i++) {
             let date = this.getMonday(new Date());
             date = this.addDays(date, i);
@@ -131,7 +131,7 @@ this.host = app => {
                 }
               }
             }
-            send.menue.push(data);
+            send.menues.push(data);
           }
           send.saldo = parseFloat(saldo);
           res.send(send);
