@@ -24,6 +24,7 @@ this.readDatesList = () => {
   pdfParser.on('pdfParser_dataReady', pdfData => {
     // filter all textes in the PDF...
     let sections = {
+      'years': [],
       'holidays': [],
       'bridgeDays': [],
       'consultationDays': [],
@@ -31,7 +32,7 @@ this.readDatesList = () => {
       'others': []
     };
     const texts = pdfData.formImage.Pages[0].Texts;
-    let key = 'header';
+    let key = 'years';
     texts.forEach(textObject => {
       let text = decodeURI(textObject.R[0].T).trim().replace(/  +/g, ' ');
       // Decode the Text...
@@ -61,12 +62,13 @@ this.readDatesList = () => {
           key = 'footer';
           return;
       }
-      if (key != 'header' && key != 'footer') {
+      if (key !== 'footer') {
         sections[key].push(text);
       }
     });
 
     let dates = {
+      'years': [],
       'holidays': [],
       'openDoorDay': {},
       'freeDays': [],
@@ -77,6 +79,12 @@ this.readDatesList = () => {
 
     // Get all holidays...
     let linenumber = 0;
+    sections.years.forEach(entry => {
+      if (entry.startsWith('Terminplanung für das Schuljahr ')) {
+        entry = entry.replace('Terminplanung für das Schuljahr ', '');
+        dates.years = [parseInt(entry.split('/')[0]), parseInt(entry.split('/')[1])];
+      }
+    });
     sections.holidays.forEach(entry => {
       let day = {
         'weekday': '',
@@ -100,15 +108,15 @@ this.readDatesList = () => {
           day.weekday = fragments[0].replace(':', '').replace(',', '');
           day.day = parseInt(fragments[1].substring(0, 2));
           day.month = fragments[2];
-          day.year = parseInt(fragments[3]);
+          day.year = predictYear(parseInt(fragments[3]), fragments[2], dates.years);
           dates.holidays[dates.holidays.length - 1].start = day;
           linenumber++;
           break;
         case 2:
-          day.weekday = fragments[0].replace(':', '');
+          day.weekday = fragments[0].replace(':', '').replace(',', '');
           day.day = parseInt(fragments[1].substring(0, 2));
           day.month = fragments[2];
-          day.year = parseInt(fragments[3]);
+          day.year = predictYear(parseInt(fragments[3]), fragments[2], dates.years);
           dates.holidays[dates.holidays.length - 1].end = day;
           linenumber = 0;
           break;
@@ -123,8 +131,8 @@ this.readDatesList = () => {
         dates.openDoorDay = {
           'description': 'Tag der offenen Tür',
           'day': parseInt(lastEntry.split('.')[0]),
-          'month': parseInt(lastEntry.split('.')[1]),
-          'year': parseInt(lastEntry.split('.')[2].substring(0, 4))
+          'month': intToMonth(parseInt(lastEntry.split('.')[1])),
+          'year': predictYear(parseInt(lastEntry.split('.')[2].substring(0, 4)), intToMonth(parseInt(lastEntry.split('.')[1])), dates.years)
         };
       } else if (entry == 'Dafür unterrichtsfrei am') {
         dates.freeDays.push({
@@ -132,7 +140,7 @@ this.readDatesList = () => {
           'weekday': sections.bridgeDays[i + 1],
           'day': parseInt(sections.bridgeDays[i + 3].split(' ')[1].substring(0, 2)),
           'month': sections.bridgeDays[i + 3].split(' ')[2],
-          'year': parseInt(sections.bridgeDays[i + 3].split(' ')[3])
+          'year': predictYear(parseInt(sections.bridgeDays[i + 3].split(' ')[3]), sections.bridgeDays[i + 3].split(' ')[2], dates.years)
         });
       } else if (entry.length == 2) {
         if (!isNaN(entry[0]) && entry[1] == '.') {
@@ -142,7 +150,7 @@ this.readDatesList = () => {
             'weekday': entry.split(',')[0],
             'day': parseInt(entry.split(' ')[1].substring(0, 2)),
             'month': entry.split(' ')[2],
-            'year': parseInt(entry.split(' ')[3]),
+            'year': predictYear(parseInt(entry.split(' ')[3]), entry.split(' ')[2], dates.years),
           });
         }
       }
@@ -171,7 +179,7 @@ this.readDatesList = () => {
             day.weekday = fragment.split(',')[0];
             day.day = parseInt(fragment.split(' ')[1].substring(0, 2));
             day.month = fragment.split(' ')[2];
-            day.year = parseInt(fragment.split(' ')[3].substring(0, 4));
+            day.year = predictYear(parseInt(fragment.split(' ')[3].substring(0, 4)), fragment.split(' ')[2], dates.years);
             if (fragment.split(': ').length > 1) {
               day.description = fragment.split(': ')[1].split(' (')[0];
             } else {
@@ -197,7 +205,7 @@ this.readDatesList = () => {
               'weekday': entry.split(', ')[0],
               'day': parseInt(entry.split(', ')[1].split(' ')[0].substring(0, 2)),
               'month': entry.split(', ')[1].split(' ')[1],
-              'year': parseInt(entry.split(', ')[1].split(' ')[2].substring(0, 4))
+              'year': predictYear(parseInt(entry.split(', ')[1].split(' ')[2].substring(0, 4)), entry.split(', ')[1].split(' ')[1], dates.years)
             }
           });
         } else if (entry.split(', ').length > 2) {
@@ -208,7 +216,7 @@ this.readDatesList = () => {
               'weekday': entry.split(', ')[0],
               'day': parseInt(entry.split(', ')[1].split(' ')[0].substring(0, 2)),
               'month': entry.split(', ')[1].split(' ')[1],
-              'year': parseInt(entry.split(', ')[1].split(' ')[2].substring(0, 4))
+              'year': predictYear(parseInt(entry.split(', ')[1].split(' ')[2].substring(0, 4)), entry.split(', ')[1].split(' ')[1], dates.years)
             }
           });
         } else {
@@ -223,8 +231,8 @@ this.readDatesList = () => {
                 'day': {
                   'weekday': null,
                   'day': parseInt(days[index].substring(0, 2)),
-                  'month': parseInt(fragments[y].split('.')[fragments[y].split('.').length - 2]),
-                  'year': parseInt(fragments[y].split('.')[fragments[y].split('.').length - 1])
+                  'month': intToMonth(parseInt(fragments[y].split('.')[fragments[y].split('.').length - 2])),
+                  'year': predictYear(parseInt(fragments[y].split('.')[fragments[y].split('.').length - 1]), intToMonth(parseInt(fragments[y].split('.')[fragments[y].split('.').length - 2])), dates.years)
                 }
               });
             }
@@ -247,7 +255,7 @@ this.readDatesList = () => {
           'weekday': entry.split(' ')[0],
           'day': parseInt(entry.split(' ')[1].substring(0, 2)),
           'month': entry.split(' ')[2],
-          'year': parseInt(entry.split(' ')[3])
+          'year': predictYear(parseInt(entry.split(' ')[3]), entry.split(' ')[2], dates.years)
         });
       }
     }
@@ -258,6 +266,24 @@ this.readDatesList = () => {
 
   pdfParser.loadPDF(path.resolve('dates', 'list.pdf'));
 };
+
+function predictYear(year, month, years) {
+  if (year) {
+    return year;
+  }
+  const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'Oktober', 'November', 'Dezember'];
+  const i = months.indexOf(month);
+  if (i <= 6) {
+    return years[0];
+  } else {
+    return years[1];
+  }
+}
+
+function intToMonth(month) {
+  const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'Oktober', 'November', 'Dezember'];
+  return months[month - 1];
+}
 
 this.setConfig = c => {
   config = c;
