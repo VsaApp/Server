@@ -8,6 +8,7 @@ const teachersShort = require('./teachersShort.js');
 const teachersMail = require('./teachersMail.js');
 const cafetoria = require('./cafetoria');
 const dates = require('./dates.js');
+const ags = require('./ags.js');
 const firebase = require('./firebase.js');
 
 const app = express();
@@ -35,6 +36,9 @@ if (fs.existsSync('config.json')) {
   if (!fs.existsSync('dates')) {
     fs.mkdirSync('dates');
   }
+  if (!fs.existsSync('ags')) {
+    fs.mkdirSync('ags');
+  }
   if (!fs.existsSync('sp')) {
     fs.mkdirSync('sp');
   }
@@ -52,9 +56,11 @@ if (fs.existsSync('config.json')) {
   vp.setConfig(config);
   teachersShort.setConfig(config);
   teachersMail.setConfig(config);
+  ags.setConfig(config);
 
   app.use('/teachers', express.static('teachers'));
   app.use('/dates', express.static('dates'));
+  app.use('/ags', express.static('ags'));
   app.use('/sp', express.static('sp'));
   app.use('/vp', express.static('vp'));
   app.get('/', (req, res) => {
@@ -105,6 +111,7 @@ teachersMail.downloadTeacherPDF().then(teacherList => {
   mails = teacherList;
   checkTeachers();
 });
+ags.downloadAGPDF();
 
 function overrideGender(short) {
   if ('genders' in config) {
