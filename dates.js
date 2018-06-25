@@ -274,9 +274,9 @@ function predictYear(year, month, years) {
   const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'Oktober', 'November', 'Dezember'];
   const i = months.indexOf(month);
   if (i <= 6) {
-    return years[0];
-  } else {
     return years[1];
+  } else {
+    return years[0];
   }
 }
 
