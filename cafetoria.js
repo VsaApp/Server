@@ -106,7 +106,7 @@ this.host = app => {
                   let nodes = table.childNodes[0].childNodes[0].childNodes;
                   let time = '';
                   let food = '';
-                  let price = '';
+                  let price = 0.0;
                   if (nodes.length > 0) {
                     if (nodes[0].rawText.includes('Uhr')) {
                       time = nodes[0].rawText.replace(' Uhr', '');
