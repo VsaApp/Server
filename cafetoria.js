@@ -111,8 +111,10 @@ this.host = app => {
                     if (nodes[0].rawText.includes('Uhr')) {
                       time = nodes[0].rawText.replace(' Uhr', '');
                       food = entities.decodeHTML(nodes[2].rawText);
-                    } else {
+                    } else if (nodes.length > 1) {
                       food = entities.decodeHTML(nodes[0].rawText + ' ' + nodes[2].rawText);
+                    } else {
+                      food = entities.decodeHTML(nodes[0].rawText);
                     }
                     nodes = table.childNodes[2].childNodes[0].childNodes[1];
                     if (nodes.childNodes.length > 0) {
