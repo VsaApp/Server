@@ -9,10 +9,24 @@ this.downloadTeacherPDF = () => {
   const p = this;
   return new Promise((resolve, reject) => {
     const stream = fs.createWriteStream(path.resolve('teachers', 'shorts.pdf'));
-    request('http://www.viktoriaschule-aachen.de/index.php?menuid=41&downloadid=80').pipe(stream);
-    stream.on('finish', () => {
-      p.readTeacherList(resolve, reject);
+    const cookieJar = request.jar();
+    request.post({
+      url: 'http://viktoriaschule-aachen.de/index.php',
+      jar: cookieJar,
+      form: {
+        username: config.username,
+        password: config.password
+      }
+    }, (error, response, body) => {
+      request.get({
+        url: 'http://viktoriaschule-aachen.de/index.php?menuid=41&downloadid=80',
+        jar: cookieJar
+      }).pipe(stream);
+      stream.on('finish', () => {
+        p.readTeacherList(resolve, reject);
+      });
     });
+
   });
 };
 
