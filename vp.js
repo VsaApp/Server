@@ -147,7 +147,7 @@ this.getVP = (today, callback) => {
                 data.changed.room = split[split.length - 2].split(' ')[split[split.length - 2].split(' ').length - 1];
               } else {
                 data.lesson = split[0].substr(3).trim();
-                data.changed.info = split[0].substr(3) + 'Freistd.';
+                data.changed.info = 'Freistunde';
               }
             } else {
               const lines = (text.match(/\n/g) || []).length + 1;
@@ -160,7 +160,7 @@ this.getVP = (today, callback) => {
                   data.lesson = g.split(' ')[1];
                   if (text.startsWith('R-Ändg. ')) {
                     data.changed.room = text.split(' ')[1];
-                    data.changed.info = text.split(' ')[0];
+                    data.changed.info = 'Raumänderung';
                   } else {
                     data.changed.info = text;
                   }
@@ -180,6 +180,17 @@ this.getVP = (today, callback) => {
             }
           }
         }
+        data.changed.room = data.changed.room
+          .replace('klHa', 'kleine Halle')
+          .replace('grHa', 'große Halle')
+          .replace('Ku1', 'Kunst 1')
+          .replace('Ku2', 'Kunst 2');
+        data.changed.info = data.changed.info
+          .replace(/abghgt\.|abgehängt/ig, 'Abgehängt')
+          .replace('versch.', 'Verschoben')
+          .replace('m.Aufg.', 'Mit Aufgaben')
+          .replace('v.', 'Vertretung')
+          .replace('Aufs.aus', 'Aufsicht aus');
         if (today) {
           vpToday[data.grade].changes.push(data);
         } else {
