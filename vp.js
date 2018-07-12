@@ -194,7 +194,8 @@ this.getVP = (today, callback) => {
           .replace('versch.', 'Verschoben')
           .replace('m.Aufg.', 'Mit Aufgaben')
           .replace('v.', 'Vertretung')
-          .replace('Aufs.aus', 'Aufsicht aus');
+          .replace('Aufs.aus', 'Aufsicht aus')
+          .replace('U-frei', 'Unterrichtsausfall');
         if (today) {
           vpToday[data.grade].changes.push(data);
         } else {
