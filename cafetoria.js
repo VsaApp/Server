@@ -97,9 +97,13 @@ this.host = app => {
                     mMenue.time.start = times[0];
                     mMenue.time.end = times[1];
                   } else {
-                    mMenue.food = entities.decodeHTML(nodes[0].rawText);
+                    if (nodes[0] !== undefined) {
+                      mMenue.food = entities.decodeHTML(nodes[0].rawText);
+                    }
                   }
-                  mMenue.price = parseFloat(table.childNodes[2].childNodes[0].childNodes[1].childNodes[0].rawText.replace(' &euro', '').replace(',', '.'));
+                  if (table.childNodes[2].childNodes[0].childNodes[1].childNodes[0] !== undefined) {
+                    mMenue.price = parseFloat(table.childNodes[2].childNodes[0].childNodes[1].childNodes[0].rawText.replace(' &euro', '').replace(',', '.'));
+                  }
                   data.menues.push(mMenue);
                 } else if (j == 5 || j == 7) {
                   const table = el.childNodes[1];

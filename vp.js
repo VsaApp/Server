@@ -12,7 +12,7 @@ let vpTomorrow = {};
 
 this.getVP = (today, callback) => {
   request('http://www.viktoriaschule-aachen.de/sundvplan/vps/' + (today ? 'left' : 'right') + '.html', (error, response, body) => {
-    if (response === null) {
+    if (!response) {
       this.getVP(today, callback);
       return;
     }
