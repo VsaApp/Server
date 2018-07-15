@@ -1,0 +1,106 @@
+body, html {
+  background-color: white;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#loginBox, #QR {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  padding: 0;
+}
+
+#loginBox {
+  width: 75%;
+  height: 50%;
+  background-color: white;
+  box-shadow: 0px 0px 20px #67a744;
+  border-radius: 10px;
+}
+
+#all {
+  background: #5bc638;
+  background: linear-gradient(to bottom right, #5bc638, #67a744);
+  height: 100%;
+  width: 100%;
+}
+
+#loginLogo, #loginTitle {
+  height: 10%;
+  margin: 20px;
+  float: left;
+  color: white;
+  font-size: 5vw;
+}
+
+#loginText {
+  color: black;
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+  width: 100%;
+}
+
+#loginAppLink {
+  text-decoration: none;
+  color: #45921e;
+  border-bottom: 2px #45921e solid;
+}
+
+#nav {
+  background: #5bc638;
+  background: linear-gradient(to bottom right, #5bc638, #67a744);
+  list-style-type: none;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.navitem {
+  float: left;
+}
+
+.navitem a {
+  color: white;
+  display: block;
+  padding: 14px 16px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.navitem a:hover {
+  background-color: #45921e;
+}
+
+#logout {
+  float: right;
+}
+
+#content {
+  padding: 10px;
+  padding-top: 0;
+}
+
+#sptable {
+  border: 1px gray solid;
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto;
+  width: calc(100vw - 34px);
+  text-align: center;
+  background-color: gray;
+}
+
+#sptable div {
+  background-color: white;
+  margin: 1px;
+  padding: 5px;
+}

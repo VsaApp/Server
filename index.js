@@ -10,6 +10,7 @@ const cafetoria = require('./cafetoria');
 const dates = require('./dates.js');
 const ags = require('./ags.js');
 const firebase = require('./firebase.js');
+const web = require('./web.js');
 
 const app = express();
 let config = {};
@@ -57,15 +58,16 @@ if (fs.existsSync('config.json')) {
   teachersShort.setConfig(config);
   teachersMail.setConfig(config);
   ags.setConfig(config);
+  web.setConfig(config);
 
+  app.use('/', express.static('web'));
+  app.use('/jquery', express.static(path.resolve('node_modules', 'jquery', 'dist')));
+  app.use('/js-cookie', express.static(path.resolve('node_modules', 'js-cookie', 'src')));
   app.use('/teachers', express.static('teachers'));
   app.use('/dates', express.static('dates'));
   app.use('/ags', express.static('ags'));
   app.use('/sp', express.static('sp'));
   app.use('/vp', express.static('vp'));
-  app.get('/', (req, res) => {
-    res.send('Nothing to see here!');
-  });
   app.get('/validate', (req, res) => {
     if (!('username' in req.query)) {
       res.send('2');
@@ -82,6 +84,7 @@ if (fs.existsSync('config.json')) {
     res.send('0');
   });
   cafetoria.host(app);
+  web.host(app);
   app.listen(config.port, () => {
     console.log('Listening on *:' + config.port);
   });

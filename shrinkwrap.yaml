@@ -4,6 +4,8 @@ dependencies:
   fast-html-parser: 1.0.1
   firebase-admin: 5.12.1
   fs: 0.0.1-security
+  jquery: 3.3.1
+  js-cookie: 2.2.0
   path: 0.12.7
   pdf-table-extractor: 1.0.3
   pdf2json: 1.1.7
@@ -1626,6 +1628,14 @@ packages:
     dev: false
     resolution:
       integrity: sha1-R+Y/evVa+m+S4VAOaQ64uFKcCZo=
+  /jquery/3.3.1:
+    dev: false
+    resolution:
+      integrity: sha512-Ubldcmxp5np52/ENotGxlLe6aGMvmF4R8S6tZjsP6Knsaxd/xp3Zrh50cG93lR6nPXyUFwzN3ZSOQI0wRJNdGg==
+  /js-cookie/2.2.0:
+    dev: false
+    resolution:
+      integrity: sha1-Gywnmm7s44ChIWi5JIUmWzWx7/s=
   /jsbn/0.1.1:
     dev: false
     optional: true
@@ -2956,6 +2966,8 @@ specifiers:
   fast-html-parser: ^1.0.1
   firebase-admin: ^5.12.1
   fs: 0.0.1-security
+  jquery: ^3.3.1
+  js-cookie: ^2.2.0
   path: ^0.12.7
   pdf-table-extractor: ^1.0.3
   pdf2json: ^1.1.7
