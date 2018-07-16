@@ -101,37 +101,41 @@ this.host = app => {
                       mMenue.food = entities.decodeHTML(nodes[0].rawText);
                     }
                   }
-                  if (table.childNodes[2].childNodes[0].childNodes[1].childNodes[0] !== undefined) {
-                    mMenue.price = parseFloat(table.childNodes[2].childNodes[0].childNodes[1].childNodes[0].rawText.replace(' &euro', '').replace(',', '.'));
+                  if (table.childNodes[2] !== undefined) {
+                    if (table.childNodes[2].childNodes[0].childNodes[1].childNodes[0] !== undefined) {
+                      mMenue.price = parseFloat(table.childNodes[2].childNodes[0].childNodes[1].childNodes[0].rawText.replace(' &euro', '').replace(',', '.'));
+                    }
                   }
                   data.menues.push(mMenue);
                 } else if (j == 5 || j == 7) {
                   const table = el.childNodes[1];
-                  let nodes = table.childNodes[0].childNodes[0].childNodes;
-                  let time = '';
-                  let food = '';
-                  let price = 0.0;
-                  if (nodes.length > 0) {
-                    if (nodes[0].rawText.includes('Uhr')) {
-                      time = nodes[0].rawText.replace(' Uhr', '');
-                      food = entities.decodeHTML(nodes[2].rawText);
-                    } else if (nodes.length > 1) {
-                      food = entities.decodeHTML(nodes[0].rawText + ' ' + nodes[2].rawText);
-                    } else {
-                      food = entities.decodeHTML(nodes[0].rawText);
-                    }
-                    nodes = table.childNodes[2].childNodes[0].childNodes[1];
-                    if (nodes.childNodes.length > 0) {
-                      price = parseFloat(nodes.childNodes[0].rawText.replace(' &euro', '').replace(',', '.'));
-                    }
-                    if (j == 5) {
-                      data.extra.time = time;
-                      data.extra.food = food;
-                      data.extra.price = price;
-                    } else {
-                      data.snack.time = time;
-                      data.snack.food = food;
-                      data.snack.price = price;
+                  if (table !== undefined) {
+                    let nodes = table.childNodes[0].childNodes[0].childNodes;
+                    let time = '';
+                    let food = '';
+                    let price = 0.0;
+                    if (nodes.length > 0) {
+                      if (nodes[0].rawText.includes('Uhr')) {
+                        time = nodes[0].rawText.replace(' Uhr', '');
+                        food = entities.decodeHTML(nodes[2].rawText);
+                      } else if (nodes.length > 1) {
+                        food = entities.decodeHTML(nodes[0].rawText + ' ' + nodes[2].rawText);
+                      } else {
+                        food = entities.decodeHTML(nodes[0].rawText);
+                      }
+                      nodes = table.childNodes[2].childNodes[0].childNodes[1];
+                      if (nodes.childNodes.length > 0) {
+                        price = parseFloat(nodes.childNodes[0].rawText.replace(' &euro', '').replace(',', '.'));
+                      }
+                      if (j == 5) {
+                        data.extra.time = time;
+                        data.extra.food = food;
+                        data.extra.price = price;
+                      } else {
+                        data.snack.time = time;
+                        data.snack.food = food;
+                        data.snack.price = price;
+                      }
                     }
                   }
                 }
