@@ -76,6 +76,9 @@ this.readAGList = () => {
               o.grades = m;
             }
           }
+          if (s[k].toLowerCase().includes('lehrer')) {
+            o.grades = 'L';
+          }
         }
         ags[i].ags.push(o);
       }
