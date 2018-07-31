@@ -1,7 +1,7 @@
 $('#logout').click(() => {
   $.ajax({
     url: 'web/delete?web=' + Cookies.get('id'),
-    success: data => {
+    success: () => {
       const keys = ['id', 'connected'];
       keys.forEach(Cookies.remove);
       Cookies.set('reload', true);
@@ -17,6 +17,7 @@ $('.navitem a').click(e => {
 function loadContainer(name) {
   $('#content').html('');
   load('#content', 'page/containers/' + name + '.html').then(() => {
+    while (grade === undefined) ;
     containerReady();
   });
 }

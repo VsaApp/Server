@@ -6,7 +6,6 @@ let grade;
 let choices;
 
 $(() => {
-  let got = 0;
   let connected = Cookies.get('connected');
   if (connected === undefined) {
     connected = false;
