@@ -25,6 +25,11 @@ if (fs.existsSync('./config/config.json')) {
   if (!('password' in config)) {
     throw new Error('Missing password in config');
   }
+
+  config.usernamesha = crypto.createHash('sha256').update(config.username).digest('hex');
+
+  config.passwordsha = crypto.createHash('sha256').update(config.password).digest('hex');
+
   app.use('/api/:a/:b', requestProxy({
     url: 'http://api/:a/:b'
   }));
