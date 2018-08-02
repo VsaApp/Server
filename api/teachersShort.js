@@ -47,7 +47,7 @@ this.readTeacherList = (resolve, reject) => {
       page.Texts.forEach(rawText => {
         const text = decodeURI(rawText.R[0].T);
         if ((text.includes('.') && text.length <= 3) | text == 'Fakultenliste') {
-          return;
+
         } else if (text.length == 3 && text === text.toUpperCase()) {
           tempValues.push(text);
           lines.push(tempValues);

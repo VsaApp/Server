@@ -15,18 +15,18 @@ $(() => {
     i = null;
   }
   $.ajax({
-    url: 'web/id?web=' + i,
+    url: '/id?web=' + i,
     success: data => {
       Cookies.set('id', data.id, {
         expires: Infinity
       });
       if (connected) {
         $.ajax({
-          url: 'web/grade?web=' + Cookies.get('id'),
+          url: '/grade?web=' + Cookies.get('id'),
           success: data => {
             grade = data.grade;
             $.ajax({
-              url: 'web/choices?web=' + Cookies.get('id'),
+              url: '/choices?web=' + Cookies.get('id'),
               success: data => {
                 choices = data;
                 if (grade === undefined) {
@@ -42,7 +42,7 @@ $(() => {
   if (!connected) {
     setInterval(() => {
       $.ajax({
-        url: 'web/connected?web=' + Cookies.get('id'),
+        url: '/connected?web=' + Cookies.get('id'),
         success: data => {
           if (data.connected) {
             Cookies.set('connected', true);
@@ -62,11 +62,11 @@ $(() => {
 });
 
 function showPage() {
-  load('body', 'page/page.html');
+  load('body', '/page/page.html');
 }
 
 function showLoginScreen() {
-  load('body', 'login/login.html');
+  load('body', '/login/login.html');
 }
 
 function load(selector, url) {

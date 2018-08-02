@@ -1,23 +1,38 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const express = require('express');
+const requestProxy = require('express-request-proxy');
 
-const sockets = [];
-
-if (!fs.existsSync('connections.json')) {
-  fs.writeFileSync('connections.json', '[]');
+if (!fs.existsSync('./config/connections.json')) {
+  fs.writeFileSync('./config/connections.json', '[]');
 }
-if (!fs.existsSync('choices.json')) {
-  fs.writeFileSync('choices.json', '{}');
+if (!fs.existsSync('./config/choices.json')) {
+  fs.writeFileSync('./config/choices.json', '{}');
 }
-let connections = require('./connections.json');
-const choices = require('./choices.json');
+let connections = require('./config/connections.json');
+const choices = require('./config/choices.json');
 
+const app = express();
 let config = {};
 
+if (fs.existsSync('./config/config.json')) {
+  config = JSON.parse(fs.readFileSync('./config/config.json', 'utf-8'));
 
-this.host = app => {
-  app.get('/web/connect', (req, res) => {
+  if (!('username' in config)) {
+    throw new Error('Missing username in config');
+  }
+  if (!('password' in config)) {
+    throw new Error('Missing password in config');
+  }
+  app.use('/api/:a/:b', requestProxy({
+    url: 'http://api/:a/:b'
+  }));
+  app.use('/', express.static('www'));
+  app.use('/jquery', express.static(path.resolve('node_modules', 'jquery', 'dist')));
+  app.use('/js-cookie', express.static(path.resolve('node_modules', 'js-cookie', 'src')));
+
+  app.get('/connect', (req, res) => {
     if (!('client' in req.query)) {
       res.send({
         error: 'No client ID'
@@ -64,7 +79,7 @@ this.host = app => {
     });
     addConnection(clientID, webID, grade);
   });
-  app.get('/web/connections', (req, res) => {
+  app.get('/connections', (req, res) => {
     if (!('id' in req.query)) {
       res.send({
         error: 'No ID'
@@ -85,7 +100,7 @@ this.host = app => {
       connections: c
     });
   });
-  app.get('/web/push', (req, res) => {
+  app.get('/push', (req, res) => {
     if (!('id' in req.query)) {
       res.send({
         error: 'No ID'
@@ -109,13 +124,13 @@ this.host = app => {
       error: null
     });
   });
-  app.get('/web/id', (req, res) => {
+  app.get('/id', (req, res) => {
     let id = (req.query.web === 'null' ? null : req.query.web) || crypto.randomBytes(8).toString('hex');
     res.send({
       id: id
     });
   });
-  app.get('/web/grade', (req, res) => {
+  app.get('/grade', (req, res) => {
     if (!('web' in req.query)) {
       res.send({
         error: 'No ID'
@@ -126,7 +141,7 @@ this.host = app => {
       grade: getGradeFromID(req.query.web)
     });
   });
-  app.get('/web/choices', (req, res) => {
+  app.get('/choices', (req, res) => {
     if (!('web' in req.query)) {
       res.send({
         error: 'No ID'
@@ -136,7 +151,7 @@ this.host = app => {
     res.send(choices[getClientFromWeb(req.query.web)]);
     updateLast(req.query.web);
   });
-  app.get('/web/delete', (req, res) => {
+  app.get('/delete', (req, res) => {
     if (!('web' in req.query)) {
       res.send({
         error: 'No ID'
@@ -148,7 +163,7 @@ this.host = app => {
       error: null
     });
   });
-  app.get('/web/connected', (req, res) => {
+  app.get('/connected', (req, res) => {
     if (!('web' in req.query)) {
       res.send({
         error: 'No ID'
@@ -161,7 +176,12 @@ this.host = app => {
       }).length > 0
     });
   });
-};
+  app.listen(80, () => {
+    console.log('Listening on *:' + 80);
+  });
+} else {
+  throw new Error('config.json missing');
+}
 
 function getGradeFromID(id) {
   try {

@@ -10,14 +10,12 @@ const cafetoria = require('./cafetoria');
 const dates = require('./dates.js');
 const ags = require('./ags.js');
 const firebase = require('./firebase.js');
-const web = require('./web.js');
 
 const app = express();
 let config = {};
 
-if (fs.existsSync('config.json')) {
-  config = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
-  config.port = config.port || 9000;
+if (fs.existsSync('./config/config.json')) {
+  config = JSON.parse(fs.readFileSync('./config/config.json', 'utf-8'));
 
   if (!('username' in config)) {
     throw new Error('Missing username in config');
@@ -25,7 +23,6 @@ if (fs.existsSync('config.json')) {
   if (!('password' in config)) {
     throw new Error('Missing password in config');
   }
-  const hash = crypto.createHash('sha256');
 
   config.usernamesha = crypto.createHash('sha256').update(config.username).digest('hex');
 
@@ -58,11 +55,7 @@ if (fs.existsSync('config.json')) {
   teachersShort.setConfig(config);
   teachersMail.setConfig(config);
   ags.setConfig(config);
-  web.setConfig(config);
 
-  app.use('/', express.static('web'));
-  app.use('/jquery', express.static(path.resolve('node_modules', 'jquery', 'dist')));
-  app.use('/js-cookie', express.static(path.resolve('node_modules', 'js-cookie', 'src')));
   app.use('/teachers', express.static('teachers'));
   app.use('/dates', express.static('dates'));
   app.use('/ags', express.static('ags'));
@@ -84,9 +77,8 @@ if (fs.existsSync('config.json')) {
     res.send('0');
   });
   cafetoria.host(app);
-  web.host(app);
-  app.listen(config.port, () => {
-    console.log('Listening on *:' + config.port);
+  app.listen(80, () => {
+    console.log('Listening on *:' + 80);
   });
 } else {
   throw new Error('config.json missing');
@@ -142,8 +134,10 @@ function checkTeachers() {
 
 sp.downloadSP();
 
-vp.getVP(true, () => {});
-vp.getVP(false, () => {});
+vp.getVP(true, () => {
+});
+vp.getVP(false, () => {
+});
 
 setInterval(() => {
   vp.getVP(true, onVPUpdate);

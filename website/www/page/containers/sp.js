@@ -1,6 +1,6 @@
 function containerReady() {
   $.ajax({
-    url: 'sp/' + grade + '.json',
+    url: '/api/sp/' + grade + '.json',
     success: sp => {
       choices.forEach(choice => {
         const day = sp.filter(day => {
@@ -13,7 +13,7 @@ function containerReady() {
       });
 
       $.ajax({
-        url: 'teachers/list.json',
+        url: '/api/teachers/list.json',
         success: teachers => {
           sp.forEach(day => {
             day.lessons.forEach(subjects => {

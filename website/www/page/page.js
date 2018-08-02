@@ -1,6 +1,6 @@
 $('#logout').click(() => {
   $.ajax({
-    url: 'web/delete?web=' + Cookies.get('id'),
+    url: 'delete?web=' + Cookies.get('id'),
     success: () => {
       const keys = ['id', 'connected'];
       keys.forEach(Cookies.remove);

@@ -1,0 +1,27 @@
+{
+  "name": "website",
+  "version": "1.0.0",
+  "description": "The web frontend for the VsaApp",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VsaApp/Server.git"
+  },
+  "author": "Jan-Luca D.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/VsaApp/Server/issues"
+  },
+  "homepage": "https://github.com/VsaApp/Server#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "express-request-proxy": "^2.2.0",
+    "fs": "0.0.1-security",
+    "jquery": "^3.3.1",
+    "js-cookie": "^2.2.0"
+  }
+}
