@@ -62,20 +62,14 @@ typings/
 
 # config
 config.json
-
-# plans
-sp/
-vp/
-
-# firebase
 firebase.json
-
-# teacher
-teachers
-
-dates
-ags
-
-# web
 connections.json
 choices.json
+
+# lists
+sp
+vp
+teachers
+dates
+ags
+documents
