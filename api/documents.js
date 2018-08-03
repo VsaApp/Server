@@ -73,7 +73,7 @@ this.listDocuments = () => {
     pages.forEach(page => {
       this.processPage(page.id).then(links => {
         links.forEach((link, i) => {
-          links[i] = {url: link, group: parseInt(page.id)};
+          links[i] = {url: link.url, text: link.text, group: parseInt(page.id)};
         });
         documents = documents.concat(links);
         idCount++;
