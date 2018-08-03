@@ -82,6 +82,11 @@ this.listDocuments = () => {
           pages.forEach(page => {
             groups[parseInt(page.id)] = page.text;
           });
+          documents = documents.filter((document, index, self) => {
+            return index === self.findIndex(t => {
+              return t.text === document.text;
+            });
+          });
           fs.writeFileSync(path.resolve('documents', 'list.json'), JSON.stringify({
             documents: documents,
             groups: groups
