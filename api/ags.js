@@ -62,7 +62,6 @@ this.readAGList = () => {
           } else if (s[k].toLowerCase().includes('raum') || s[k].toLowerCase().includes('r.') || s[k].toLowerCase().includes('comp.') || s[k].toLowerCase().includes('gr\ ha') || s[k].toLowerCase().includes('ghalle') || s[k].toLowerCase().includes('g halle') || s[k].toLowerCase().includes('aula') || s[k].toLowerCase().includes('beekstraße')) {
             o.room = s[k].toLowerCase().replace('raum ', '').replace('r.', '').replace('comp.', '').replace(/gr ha|ghalle|g halle/g, 'Große Halle').replace('musikraum', 'Musikraum').replace('aula', 'Aula').replace('beekstraße', 'Beekstraße').replace(/\./g, '').trim();
           } else if (s[k].toLowerCase().includes('gst') || s[k].toLowerCase().includes('alle') || s[k].toLowerCase().includes('stufe') || s[k].toLowerCase().includes('kl.')) {
-            const grades = ['5', '6', '7', '8', '9', 'ef', 'q1', 'q2'];
             let m = s[k].toLowerCase().replace('jgst.', '').replace('gst.', '').replace('ef', 'EF').replace('q1', 'Q1').replace('q2', 'Q2').replace('oberstufe', 'EF - Q2').replace('mittelstufe', '7 - 9').replace('unterstufe', '5 - 6').replace('alle', '5 - Q2').replace(/[1-2]\.hj/g, '').replace(/ +(?= )/g, '').replace('/', '-').trim();
             if (m.includes('kl.')) {
               m = m.split('kl.')[1].trim();

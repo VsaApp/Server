@@ -17,8 +17,20 @@ $('.navitem a').click(e => {
 function loadContainer(name) {
   $('#content').html('');
   load('#content', 'page/containers/' + name + '.html').then(() => {
-    while (grade === undefined) ;
-    containerReady();
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i === 50) {
+        clearInterval(interval);
+        $('#logout').click();
+        return;
+      }
+      if (grade !== undefined) {
+        clearInterval(interval);
+        containerReady();
+        return;
+      }
+      i++;
+    }, 10);
   });
 }
 

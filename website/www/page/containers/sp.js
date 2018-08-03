@@ -6,10 +6,9 @@ function containerReady() {
         const day = sp.filter(day => {
           return day.name === choice.weekday;
         })[0];
-        const lesson = day.lessons[choice.unit].filter(lesson => {
+        day.lessons[choice.unit][0] = day.lessons[choice.unit].filter(lesson => {
           return poop(lesson.teacher) === choice.teacher && lesson.lesson === choice.subject;
         })[0];
-        day.lessons[choice.unit][0] = lesson;
       });
 
       $.ajax({
@@ -45,7 +44,7 @@ function containerReady() {
                   $('#sptable').append('<div><b>' + subjectNames[lesson.lesson.toUpperCase()] + '</b><br>mit ' + lesson.teacher + '<br>in Raum ' + lesson.room + '</div>');
                 } else {
                   if (grade === ('EF' || 'Q1' || 'Q2')) {
-                    if (i == 5) {
+                    if (i === 5) {
                       $('#sptable').append('<div>Mittagspause</div>');
                     } else {
                       $('#sptable').append('<div></div>');

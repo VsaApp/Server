@@ -17,7 +17,7 @@ this.downloadTeacherPDF = () => {
         username: config.username,
         password: config.password
       }
-    }, (error, response, body) => {
+    }, () => {
       request.get({
         url: 'http://viktoriaschule-aachen.de/index.php?menuid=97&downloadid=265',
         jar: cookieJar
@@ -29,7 +29,7 @@ this.downloadTeacherPDF = () => {
   });
 };
 
-this.readTeacherList = (resolve, reject) => {
+this.readTeacherList = resolve => {
   const pdfParser = new PDFParser();
 
   pdfParser.on('pdfParser_dataError', errData => {
@@ -42,7 +42,7 @@ this.readTeacherList = (resolve, reject) => {
     pages.forEach(page => {
       for (let i = 0; i < page.Texts.length; i++) {
         const text = decodeURI(page.Texts[i].R[0].T);
-        if (new RegExp(/^[0-9]{1,}\. $/gm).test(text)) {
+        if (new RegExp(/^[0-9]+\. $/gm).test(text)) {
           teacherList.push(decodeURI(page.Texts[i + 1].R[0].T));
           i++;
         }

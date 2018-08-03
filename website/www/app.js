@@ -29,9 +29,6 @@ $(() => {
               url: '/choices?web=' + Cookies.get('id'),
               success: data => {
                 choices = data;
-                if (grade === undefined) {
-                  $('#logout').click();
-                }
               }
             });
           }
@@ -70,7 +67,7 @@ function showLoginScreen() {
 }
 
 function load(selector, url) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     $.ajax({
       url: url,
       success: content => {

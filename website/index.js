@@ -4,14 +4,14 @@ const path = require('path');
 const express = require('express');
 const requestProxy = require('express-request-proxy');
 
-if (!fs.existsSync('./config/connections.json')) {
-  fs.writeFileSync('./config/connections.json', '[]');
+if (!fs.existsSync('./connections.json')) {
+  fs.writeFileSync('./connections.json', '[]');
 }
-if (!fs.existsSync('./config/choices.json')) {
-  fs.writeFileSync('./config/choices.json', '{}');
+if (!fs.existsSync('./choices.json')) {
+  fs.writeFileSync('./choices.json', '{}');
 }
-let connections = require('./config/connections.json');
-const choices = require('./config/choices.json');
+let connections = require('./connections.json');
+const choices = require('./choices.json');
 
 const app = express();
 let config = {};

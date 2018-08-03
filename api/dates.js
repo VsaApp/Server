@@ -22,7 +22,7 @@ this.readDatesList = () => {
   });
 
   pdfParser.on('pdfParser_dataReady', pdfData => {
-    // filter all textes in the PDF...
+    // filter all texts in the PDF...
     let sections = {
       'years': [],
       'holidays': [],
@@ -34,14 +34,14 @@ this.readDatesList = () => {
     const texts = pdfData.formImage.Pages[0].Texts;
     let key = 'years';
     texts.forEach(textObject => {
-      let text = decodeURI(textObject.R[0].T).trim().replace(/  +/g, ' ');
+      let text = decodeURI(textObject.R[0].T).trim().replace(/ {2}/g, ' ');
       // Decode the Text...
       text = text.split('%3A').join(':');
       text = text.split('%2C').join(',');
       text = text.split('%3C').join(',');
       text = text.split('%2F').join('/');
 
-      // SPlit PDF in all sections...
+      // Split PDF in all sections...
       switch (text) {
         case 'Letzter Ferientag':
           key = 'holidays';
@@ -126,7 +126,7 @@ this.readDatesList = () => {
     // Get all bridge days...
     for (let i = 0; i < sections.bridgeDays.length; i++) {
       let entry = sections.bridgeDays[i];
-      if (entry == 'Unterricht am Tag der Offenen Tür für künftige Fünftklässler und deren Eltern.') {
+      if (entry === 'Unterricht am Tag der Offenen Tür für künftige Fünftklässler und deren Eltern.') {
         const lastEntry = sections.bridgeDays[i - 1];
         dates.openDoorDay = {
           'description': 'Tag der offenen Tür',
@@ -134,7 +134,7 @@ this.readDatesList = () => {
           'month': intToMonth(parseInt(lastEntry.split('.')[1])),
           'year': predictYear(parseInt(lastEntry.split('.')[2].substring(0, 4)), intToMonth(parseInt(lastEntry.split('.')[1])), dates.years)
         };
-      } else if (entry == 'Dafür unterrichtsfrei am') {
+      } else if (entry === 'Dafür unterrichtsfrei am') {
         dates.freeDays.push({
           'description': 'Ersatz für Tag der offenen Tür',
           'weekday': sections.bridgeDays[i + 1],
@@ -142,8 +142,8 @@ this.readDatesList = () => {
           'month': sections.bridgeDays[i + 3].split(' ')[2],
           'year': predictYear(parseInt(sections.bridgeDays[i + 3].split(' ')[3]), sections.bridgeDays[i + 3].split(' ')[2], dates.years)
         });
-      } else if (entry.length == 2) {
-        if (!isNaN(entry[0]) && entry[1] == '.') {
+      } else if (entry.length === 2) {
+        if (!isNaN(entry[0]) && entry[1] === '.') {
           entry = sections.bridgeDays[i + 1];
           dates.freeDays.push({
             'description': entry.split('(')[1].split(')')[0],
@@ -167,14 +167,14 @@ this.readDatesList = () => {
         'month': '',
         'year': '',
       };
-      if (entry.length == 2) {
-        if (!isNaN(entry[0]) && entry[1] == '.') {
+      if (entry.length === 2) {
+        if (!isNaN(entry[0]) && entry[1] === '.') {
           entry = sections.consultationDays[i + 1];
 
           let fragments = entry.split(' und ');
           for (let j = 0; j < fragments.length; j++) {
             const fragment = fragments[j];
-            if (fragments.length == 1) day.time = fragment.split('(')[1].split(')')[0];
+            if (fragments.length === 1) day.time = fragment.split('(')[1].split(')')[0];
             else day.time = entry.split('(')[1].split(')')[0];
             day.weekday = fragment.split(',')[0];
             day.day = parseInt(fragment.split(' ')[1].substring(0, 2));
@@ -194,9 +194,9 @@ this.readDatesList = () => {
     // Get all testimony conferences...
     for (let i = 0; i < sections.conferences.length; i++) {
       let entry = sections.conferences[i];
-      if (entry == '\uf0b7') {
+      if (entry === '\uf0b7') {
         entry = sections.conferences[i + 1];
-        if (entry == 'Zeugnisausgabe') {
+        if (entry === 'Zeugnisausgabe') {
           entry = sections.conferences[i + 2].split(':')[1].trim();
           dates.gradesReleases.push({
             'description': 'Zeugnisausgabe',
@@ -244,7 +244,7 @@ this.readDatesList = () => {
     // Get all other free days...
     for (let i = 0; i < sections.others.length; i++) {
       let entry = sections.others[i];
-      if (entry == '\uf0b7') {
+      if (entry === '\uf0b7') {
         entry = sections.others[i + 2];
         if (!isNaN(entry)) {
           entry = sections.others[i + 5];

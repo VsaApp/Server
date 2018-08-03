@@ -23,7 +23,7 @@ this.host = app => {
     request.get({
       url: 'https://www.opc-asp.de/vs-aachen/',
       jar: cookieJar
-    }, (error, response, body) => {
+    }, () => {
       request.post({
         url: 'https://www.opc-asp.de/vs-aachen/?LogIn=true',
         jar: cookieJar,
@@ -32,12 +32,12 @@ this.host = app => {
           f_kartennr: req.query.id,
           f_pw: req.query.password
         }
-      }, (error, response, body) => {
+      }, () => {
         request.get({
           url: 'https://www.opc-asp.de/vs-aachen/menuplan.php?KID=' + req.query.id,
           jar: cookieJar
         }, (error, response, body) => {
-          if (response.statusCode != 200) {
+          if (response.statusCode !== 200) {
             res.send({
               error: 'Invalid credentials'
             });
@@ -78,9 +78,9 @@ this.host = app => {
             for (let j = 0; j < row.childNodes.length; j++) {
               const el = row.childNodes[j];
               if (el.tagName === 'td') {
-                if (j == 0) {
+                if (j === 0) {
                   data.weekday = el.childNodes[2].rawText;
-                } else if (j == 1 || j == 3) {
+                } else if (j === 1 || j === 3) {
                   let mMenue = {
                     time: {
                       start: '',
@@ -91,7 +91,7 @@ this.host = app => {
                   };
                   const table = el.childNodes[1];
                   let nodes = table.childNodes[0].childNodes[0].childNodes;
-                  if (nodes.length == 3) {
+                  if (nodes.length === 3) {
                     mMenue.food = entities.decodeHTML(nodes[2].rawText);
                     const times = nodes[0].rawText.replace(' Uhr', '').split(' - ');
                     mMenue.time.start = times[0];
@@ -107,7 +107,7 @@ this.host = app => {
                     }
                   }
                   data.menues.push(mMenue);
-                } else if (j == 5 || j == 7) {
+                } else if (j === 5 || j === 7) {
                   const table = el.childNodes[1];
                   if (table !== undefined) {
                     let nodes = table.childNodes[0].childNodes[0].childNodes;
@@ -127,7 +127,7 @@ this.host = app => {
                       if (nodes.childNodes.length > 0) {
                         price = parseFloat(nodes.childNodes[0].rawText.replace(' &euro', '').replace(',', '.'));
                       }
-                      if (j == 5) {
+                      if (j === 5) {
                         data.extra.time = time;
                         data.extra.food = food;
                         data.extra.price = price;
@@ -154,7 +154,7 @@ this.host = app => {
 this.getMonday = d => {
   d = new Date(d);
   let day = d.getDay(),
-    diff = d.getDate() - day + (day == 0 ? -6 : 1);
+    diff = d.getDate() - day + (day === 0 ? -6 : 1);
   return new Date(d.setDate(diff));
 };
 

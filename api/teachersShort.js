@@ -17,7 +17,7 @@ this.downloadTeacherPDF = () => {
         username: config.username,
         password: config.password
       }
-    }, (error, response, body) => {
+    }, () => {
       request.get({
         url: 'http://viktoriaschule-aachen.de/index.php?menuid=41&downloadid=80',
         jar: cookieJar
@@ -30,7 +30,7 @@ this.downloadTeacherPDF = () => {
   });
 };
 
-this.readTeacherList = (resolve, reject) => {
+this.readTeacherList = resolve => {
   const pdfParser = new PDFParser();
 
   pdfParser.on('pdfParser_dataError', errData => {
@@ -46,9 +46,9 @@ this.readTeacherList = (resolve, reject) => {
 
       page.Texts.forEach(rawText => {
         const text = decodeURI(rawText.R[0].T);
-        if ((text.includes('.') && text.length <= 3) | text == 'Fakultenliste') {
+        if ((text.includes('.') && text.length <= 3) || text === 'Fakultenliste') {
 
-        } else if (text.length == 3 && text === text.toUpperCase()) {
+        } else if (text.length === 3 && text === text.toUpperCase()) {
           tempValues.push(text);
           lines.push(tempValues);
           tempValues = [];
@@ -57,7 +57,7 @@ this.readTeacherList = (resolve, reject) => {
         }
       });
       // Convert lines to teachers...
-      lines.forEach(function(line) {
+      lines.forEach(function (line) {
         let teacher = {
           'longName': '',
           'shortName': '',
@@ -65,7 +65,7 @@ this.readTeacherList = (resolve, reject) => {
         };
         for (let i = 0; i < line.length; i++) {
           const value = line[i].trim();
-          if (value.length == 3 && value === value.toUpperCase()) {
+          if (value.length === 3 && value === value.toUpperCase()) {
             teacher.shortName = value;
           } else if (value.length <= 2) {
             teacher.subjects.push(value);

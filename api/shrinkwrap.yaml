@@ -1303,7 +1303,7 @@ packages:
       integrity: sha1-Dovf5NHduIVNZOBOp8AOKgJuVlg=
   /grpc/1.12.4:
     bundledDependencies:
-      - node-pre-gyp
+    - node-pre-gyp
     dependencies:
       lodash: 4.17.10
       nan: 2.10.0
@@ -2083,10 +2083,10 @@ packages:
       integrity: sha1-6KcFaxfmIcNm/UPDMKsC7D/PHI4=
   /pdf2json/1.1.7:
     bundledDependencies:
-      - xmldom
-      - lodash
-      - optimist
-      - async
+    - xmldom
+    - lodash
+    - optimist
+    - async
     dev: false
     engines:
       node: '>=4.0'

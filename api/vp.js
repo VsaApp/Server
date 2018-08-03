@@ -16,7 +16,7 @@ this.getVP = (today, callback) => {
       this.getVP(today, callback);
       return;
     }
-    if (response.statusCode != 200) {
+    if (response.statusCode !== 200) {
       console.error(body);
       process.exit(1);
     }
@@ -83,8 +83,8 @@ this.getVP = (today, callback) => {
       };
       const table = html.querySelectorAll('table')[0];
       let prevGrade = '';
-      // Add all timestemps...
-      for (var grade in vpToday) {
+      // Add all timestamps...
+      for (const grade in vpToday) {
         vpToday[grade] = {
           date: date.getUTCDate() + '.' + (date.getUTCMonth() + 1) + '.' + date.getUTCFullYear(),
           time: time,
@@ -92,7 +92,7 @@ this.getVP = (today, callback) => {
           changes: []
         };
       }
-      for (var grade2 in vpTomorrow) {
+      for (const grade2 in vpTomorrow) {
         vpTomorrow[grade2] = {
           date: date.getUTCDate() + '.' + (date.getUTCMonth() + 1) + '.' + date.getUTCFullYear(),
           time: time,
@@ -119,10 +119,10 @@ this.getVP = (today, callback) => {
           }
           text = text.slice(0, -1);
           text = text.replace('*** ', '');
-          if (text.length == 1) {
+          if (text.length === 1) {
             text = '';
           }
-          if (j == 0) {
+          if (j === 0) {
             if (text.startsWith('···')) {
               data.grade = prevGrade;
             } else {
@@ -130,7 +130,7 @@ this.getVP = (today, callback) => {
               prevGrade = data.grade;
             }
             data.unit = text.split(' ')[1].slice(0, -1);
-          } else if (j == 2) {
+          } else if (j === 2) {
             if (text === '') {
               for (let l = 0; l < table.childNodes[i].childNodes[1].childNodes.length; l++) {
                 text += table.childNodes[i].childNodes[1].childNodes[l].childNodes[0].rawText + '\n';
@@ -138,7 +138,6 @@ this.getVP = (today, callback) => {
               while (text.includes('  ')) {
                 text = text.replace('  ', ' ');
               }
-              const lines = (text.match(/\n/g) || []).length + 1;
               const split = text.split('\n');
               if (text.startsWith('Klausur:')) {
                 if (split[1] !== 'Nachschreiber') {
@@ -156,7 +155,7 @@ this.getVP = (today, callback) => {
             } else {
               const lines = (text.match(/\n/g) || []).length + 1;
               const g = table.childNodes[i].childNodes[1].childNodes[0].childNodes[0].rawText;
-              if (lines == 1) {
+              if (lines === 1) {
                 if (text === 'Studienzeit') {
                   data.lesson = g.split(' ')[1] + ' ' + g.split(' ')[2];
                   data.changed.info = 'Freistunde';

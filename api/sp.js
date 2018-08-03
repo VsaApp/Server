@@ -7,7 +7,7 @@ let config = {};
 
 this.downloadSP = () => {
   request('http://www.viktoriaschule-aachen.de/sundvplan/sps/left.html', (error, response, body) => {
-    if (response.statusCode != 200) {
+    if (response.statusCode !== 200) {
       console.error(body);
       process.exit(1);
     }
@@ -40,8 +40,8 @@ this.downloadSP = () => {
             }
             lessons.push(text);
           }
-          if (j == 0) {
-            if (k != 0) {
+          if (j === 0) {
+            if (k !== 0) {
               let days = {
                 'Mo': 'Montag',
                 'Di': 'Dienstag',
@@ -57,7 +57,7 @@ this.downloadSP = () => {
               };
             }
           } else {
-            if (k != 0) {
+            if (k !== 0) {
               if (plan[k - 1].lessons[j - 1] === undefined) {
                 plan[k - 1].lessons[j - 1] = [];
               }
