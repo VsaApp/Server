@@ -45,7 +45,7 @@ this.processPage = id => {
         return link.url.startsWith('/');
       });
       links.forEach((link, i) => {
-        links[i].url = 'http://viktoriaschule-aachen.de' + link.url;
+        links[i].url = 'http://viktoriaschule-aachen.de' + link.url.replace('&reporeid=0', '');
       });
       resolve(links);
     });
