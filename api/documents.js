@@ -9,23 +9,6 @@ let pages = [];
 let processedPages = [];
 let documents = [];
 
-this.fetchPages = () => {
-  return new Promise(resolve => {
-    request.get({url: 'http://viktoriaschule-aachen.de/'}, (error, response, body) => {
-      if (error) {
-        this.fetchPages().then(resolve);
-        return;
-      }
-      const html = parser.parse(body);
-      const links = html.querySelectorAll('.menuxaktiv_back').concat(html.querySelectorAll('.menuxaktiv'));
-      links.forEach((link, i) => {
-        links[i] = link.id.replace('menu_', '');
-      });
-      resolve(links);
-    });
-  });
-};
-
 this.processPage = id => {
   return new Promise(resolve => {
     request.get({url: 'http://viktoriaschule-aachen.de/index.php?menuid=' + id}, (error, response, body) => {
@@ -34,7 +17,9 @@ this.processPage = id => {
         return;
       }
       const html = parser.parse(body);
-      let links = html.querySelectorAll('.downloadlink');
+      let links = html.querySelectorAll('a').filter(link => {
+        return link.classNames.includes('downloadlink') || (this.extractAttrs(link.rawAttrs).href !== undefined && (this.extractAttrs(link.rawAttrs).href.toLowerCase().includes('pdf') || this.extractAttrs(link.rawAttrs).href.toLowerCase().includes('downloadid')));
+      });
       links.forEach((link, i) => {
         links[i] = {
           url: this.extractAttrs(link.rawAttrs).href.slice(0, -1).replace(/amp;/g, ''),
@@ -45,7 +30,7 @@ this.processPage = id => {
         return link.url.startsWith('/');
       });
       links.forEach((link, i) => {
-        links[i].url = 'http://viktoriaschule-aachen.de' + link.url.replace('&reporeid=0', '');
+        links[i].url = 'http://viktoriaschule-aachen.de' + link.url.replace('&reporeid=0', '').replace('&reporeid=', '');
       });
       resolve(links);
     });
