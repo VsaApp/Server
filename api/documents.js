@@ -47,37 +47,40 @@ this.extractAttrs = str => {
 };
 
 this.listDocuments = () => {
-  let idCount = 0;
-  this.listPages(1).then(() => {
-    processedPages.forEach(pp => {
-      pages = pages.filter(page => {
-        return pp.id !== page.id;
-      });
-    });
-    processedPages = processedPages.concat(pages);
-    pages.forEach(page => {
-      this.processPage(page.id).then(links => {
-        links.forEach((link, i) => {
-          links[i] = {url: link.url, text: link.text, group: parseInt(page.id)};
+  return new Promise(resolve => {
+    let idCount = 0;
+    this.listPages(1).then(() => {
+      processedPages.forEach(pp => {
+        pages = pages.filter(page => {
+          return pp.id !== page.id;
         });
-        documents = documents.concat(links);
-        idCount++;
-        if (idCount === pages.length) {
-          const groups = {};
-          pages.forEach(page => {
-            groups[parseInt(page.id)] = page.text;
+      });
+      processedPages = processedPages.concat(pages);
+      pages.forEach(page => {
+        this.processPage(page.id).then(links => {
+          links.forEach((link, i) => {
+            links[i] = {url: link.url, text: link.text, group: parseInt(page.id)};
           });
-          documents = documents.filter((document, index, self) => {
-            return index === self.findIndex(t => {
-              return t.text === document.text;
+          documents = documents.concat(links);
+          idCount++;
+          if (idCount === pages.length) {
+            const groups = {};
+            pages.forEach(page => {
+              groups[parseInt(page.id)] = page.text;
             });
-          });
-          fs.writeFileSync(path.resolve('documents', 'list.json'), JSON.stringify({
-            documents: documents,
-            groups: groups
-          }, null, 2));
-          console.log('Downloaded documents list');
-        }
+            documents = documents.filter((document, index, self) => {
+              return index === self.findIndex(t => {
+                return t.text === document.text;
+              });
+            });
+            fs.writeFileSync(path.resolve('documents', 'list.json'), JSON.stringify({
+              documents: documents,
+              groups: groups
+            }, null, 2));
+            console.log('Downloaded documents list');
+            resolve(documents);
+          }
+        });
       });
     });
   });

@@ -2,15 +2,15 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const sp = require('./sp.js');
-const vp = require('./vp.js');
-const teachersShort = require('./teachersShort.js');
-const teachersMail = require('./teachersMail.js');
+const sp = require('./sp');
+const vp = require('./vp');
+const teachersShort = require('./teachersShort');
+const teachersMail = require('./teachersMail');
 const cafetoria = require('./cafetoria');
-const dates = require('./dates.js');
-const ags = require('./ags.js');
-const documents = require('./documents.js');
-const firebase = require('./firebase.js');
+const dates = require('./dates');
+const ags = require('./ags');
+const documents = require('./documents');
+const firebase = require('./firebase');
 
 const app = express();
 let config = {};
@@ -89,7 +89,6 @@ if (fs.existsSync('./config/config.json')) {
 } else {
   throw new Error('config.json missing');
 }
-dates.downloadDatesPDF();
 
 let shorts = [];
 let mails = [];
@@ -112,8 +111,10 @@ teachersMail.downloadTeacherPDF().then(teacherList => {
   mails = teacherList;
   checkTeachers();
 });
-ags.downloadAGPDF();
-documents.listDocuments();
+documents.listDocuments().then(documents => {
+  ags.downloadAGPDF(documents);
+  dates.downloadDatesPDF(documents);
+});
 
 function overrideGender(short) {
   if ('genders' in config) {

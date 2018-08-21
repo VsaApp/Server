@@ -5,10 +5,13 @@ const pdf_table_extractor = require('pdf-table-extractor');
 
 let config = {};
 
-this.downloadAGPDF = () => {
+this.downloadAGPDF = documents => {
+  const document = documents.filter(document => {
+    return document.text.startsWith('Gesamtübersicht AGs im Schuljahr');
+  })[0];
   const p = this;
   const stream = fs.createWriteStream(path.resolve('ags', 'list.pdf'));
-  request.get('http://viktoriaschule-aachen.de/index.php?menuid=1&downloadid=513').pipe(stream);
+  request.get(document.url).pipe(stream);
   stream.on('finish', () => {
     p.readAGList();
   });

@@ -5,10 +5,13 @@ const PDFParser = require('pdf2json');
 
 let config = {};
 
-this.downloadDatesPDF = () => {
+this.downloadDatesPDF = documents => {
+  const document = documents.filter(document => {
+    return document.text.startsWith('Übersichtsplanung über die Termine im Schuljahr');
+  })[0];
   const p = this;
   const stream = fs.createWriteStream(path.resolve('dates', 'list.pdf'));
-  request('http://www.viktoriaschule-aachen.de/index.php?menuid=3&downloadid=797&reporeid=0').pipe(stream);
+  request(document.url).pipe(stream);
   stream.on('finish', () => {
     p.readDatesList();
   });
@@ -105,20 +108,24 @@ this.readDatesList = () => {
           linenumber++;
           break;
         case 1:
-          day.weekday = fragments[0].replace(':', '').replace(',', '');
-          day.day = parseInt(fragments[1].substring(0, 2));
-          day.month = fragments[2];
-          day.year = predictYear(parseInt(fragments[3]), fragments[2], dates.years);
-          dates.holidays[dates.holidays.length - 1].start = day;
-          linenumber++;
+          if (fragments.length === 4) {
+            day.weekday = fragments[0].replace(':', '').replace(',', '');
+            day.day = parseInt(fragments[1].substring(0, 2));
+            day.month = fragments[2];
+            day.year = predictYear(parseInt(fragments[3]), fragments[2], dates.years);
+            dates.holidays[dates.holidays.length - 1].start = day;
+            linenumber++;
+          }
           break;
         case 2:
-          day.weekday = fragments[0].replace(':', '').replace(',', '');
-          day.day = parseInt(fragments[1].substring(0, 2));
-          day.month = fragments[2];
-          day.year = predictYear(parseInt(fragments[3]), fragments[2], dates.years);
-          dates.holidays[dates.holidays.length - 1].end = day;
-          linenumber = 0;
+          if (fragments.length === 4) {
+            day.weekday = fragments[0].replace(':', '').replace(',', '');
+            day.day = parseInt(fragments[1].substring(0, 2));
+            day.month = fragments[2];
+            day.year = predictYear(parseInt(fragments[3]), fragments[2], dates.years);
+            dates.holidays[dates.holidays.length - 1].end = day;
+            linenumber = 0;
+          }
           break;
       }
     });
@@ -283,6 +290,10 @@ function predictYear(year, month, years) {
 function intToMonth(month) {
   const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
   return months[month - 1];
+}
+
+function validateWeekday(weekday) {
+  return ['montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'samstag', 'sonntag'].includes(weekday.toLowerCase());
 }
 
 this.setConfig = c => {
