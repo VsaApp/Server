@@ -8,4 +8,4 @@ RUN pnpm install
 RUN npm install nodemon -g
 COPY . /usr/src/app
 
-CMD nodemon index.js -q
+CMD nodemon index.js -q --ignore "*.json"
