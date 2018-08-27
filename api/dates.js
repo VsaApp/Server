@@ -42,7 +42,6 @@ this.readDatesList = () => {
       return line.trim();
     });
     getHolidays(result.pageTables[0].tables[1][0].split('\n').slice(1));
-    //console.log(lines);
     getOpenDoorDay(lines);
     getFreeDays(lines);
     getConsultationDays(lines);
@@ -271,6 +270,8 @@ this.readDatesList = () => {
       start = {weekday: start[0], day: parseInt(start[1]), month: start[2], year: parseInt(start[3])};
       if (end.length > 0) {
         end = {weekday: end[0], day: parseInt(end[1]), month: end[2], year: parseInt(end[3])};
+      } else {
+        end = {};
       }
       out.holidays.push({
         name: name,
