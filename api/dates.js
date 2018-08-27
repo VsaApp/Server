@@ -194,7 +194,7 @@ this.readDatesList = () => {
         const day = parseInt(line.split(' ')[1].replace('.', ''));
         const month = line.split(' ')[2];
         const year = parseInt(line.split(' ')[3]);
-        const description = line.split(' ').slice(4).join(' ').replace(/[()]/g, '');
+        const description = (weekday.toLowerCase().includes('karneval') ? weekday : line.split(' ').slice(4).join(' ').replace(/[()]/g, ''));
         out.freeDays.push({
           description: description,
           weekday: weekday,
