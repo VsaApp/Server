@@ -85,7 +85,7 @@ const subjectNames = {
   DP: 'PoWi',
   IF: 'Info',
   S8: 'Spanisch',
-  S0: 'Spanisch',
+  S1: 'Spanisch',
   MU: 'Musik',
   SP: 'Sport',
   F6: 'Französisch',
