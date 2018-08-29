@@ -81,7 +81,7 @@ this.getVP = (today, callback) => {
         'Q2': [],
         '13': []
       };
-      const table = html.querySelectorAll('table')[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0];
+      const table = html.querySelectorAll('table')[0];
       let prevGrade = '';
       // Add all timestamps...
       for (const grade in vpToday) {
