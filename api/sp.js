@@ -91,19 +91,24 @@ this.strToLesson = (str, multi) => {
   }
   let arr = str.split(' ');
   arr = arr.filter(el => el !== '');
+  let obj = {};
   if (multi) {
-    return {
+    obj = {
       teacher: arr[1],
       lesson: arr[0],
       room: arr[2]
     };
   } else {
-    return {
+    obj = {
       teacher: arr[0],
       lesson: arr[1],
       room: arr[2]
     };
   }
+  if (/^[a-z]$/m.test(obj.room)) {
+    return;
+  }
+  return obj;
 };
 
 this.setConfig = c => {
