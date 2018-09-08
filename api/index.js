@@ -152,8 +152,6 @@ setInterval(() => {
   vp.getVP(false, onVPUpdate);
 }, 60000);
 
-function onVPUpdate(data) {
-  if (data.changes.length > 0) {
-    firebase.send(data.changes[0].grade, JSON.stringify(data));
-  }
+function onVPUpdate(grade, data) {
+  firebase.send(grade, JSON.stringify(data));
 }

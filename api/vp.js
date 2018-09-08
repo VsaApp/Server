@@ -204,12 +204,12 @@ this.getVP = (today, callback) => {
 
       if (today) {
         Object.keys(vpToday).forEach(key => {
-          callback(vpToday[key]);
+          callback(key, vpToday[key]);
           fs.writeFileSync(path.resolve('vp', 'today', key + '.json'), JSON.stringify(vpToday[key], null, 2));
         });
       } else {
         Object.keys(vpTomorrow).forEach(key => {
-          callback(vpTomorrow[key]);
+          callback(key, vpTomorrow[key]);
           fs.writeFileSync(path.resolve('vp', 'tomorrow', key + '.json'), JSON.stringify(vpTomorrow[key], null, 2));
         });
       }
