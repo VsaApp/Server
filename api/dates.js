@@ -49,6 +49,7 @@ this.readDatesList = () => {
     getConferences(lines);
     fs.writeFileSync(path.resolve('dates', 'list.json'), JSON.stringify(out, null, 2));
     console.log('Downloaded dates');
+    module.parent.exports();
   }, console.error);
 
   function getConferences(lines) {

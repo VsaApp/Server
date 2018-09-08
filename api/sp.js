@@ -82,6 +82,7 @@ this.downloadSP = () => {
       fs.writeFileSync(path.resolve('sp', jg[i] + '.json'), JSON.stringify(plan, null, 2));
     }
     console.log('Downloaded sp');
+    module.parent.exports();
   }).auth(config.username, config.password, false);
 };
 

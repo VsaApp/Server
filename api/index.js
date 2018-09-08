@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const hashFiles = require('hash-files');
 const sp = require('./sp');
 const vp = require('./vp');
 const teachersShort = require('./teachersShort');
@@ -53,6 +54,9 @@ if (fs.existsSync('./config/config.json')) {
   if (!fs.existsSync(path.resolve('vp', 'tomorrow'))) {
     fs.mkdirSync(path.resolve('vp', 'tomorrow'));
   }
+  if (!fs.existsSync('sums')) {
+    fs.mkdirSync('sums');
+  }
 
   sp.setConfig(config);
   vp.setConfig(config);
@@ -65,6 +69,7 @@ if (fs.existsSync('./config/config.json')) {
   app.use('/dates', express.static('dates'));
   app.use('/ags', express.static('ags'));
   app.use('/documents', express.static('documents'));
+  app.use('/sums', express.static('sums'));
   app.use('/sp', express.static('sp'));
   app.use('/vp', express.static('vp'));
   app.get('/validate', (req, res) => {
@@ -155,3 +160,23 @@ setInterval(() => {
 function onVPUpdate(grade, data) {
   firebase.send(grade, JSON.stringify(data));
 }
+
+let hashes = {};
+
+module.exports = () => {
+  const files = ['ags/list.json', 'dates/list.json', 'documents/list.json', 'sp/*', 'teachers/list.json', 'vp/today/*', 'vp/tomorrow/*'];
+  let got = 0;
+  files.forEach(file => {
+    hashFiles({files: [file], algorithm: 'sha256'}, (error, hash) => {
+      if (error) {
+        throw error;
+      }
+      const name = file.replace(/\/list.json|\/\*/ig, '');
+      hashes[name] = hash;
+      got++;
+      if (got === files.length) {
+        fs.writeFileSync(path.resolve('sums', 'list.json'), JSON.stringify(hashes, null, 2));
+      }
+    });
+  });
+};

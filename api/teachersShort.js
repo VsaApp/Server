@@ -78,6 +78,7 @@ this.readTeacherList = resolve => {
     });
     resolve(teacherList);
     console.log('Downloaded teacher\'s shortnames');
+    module.parent.exports();
   });
 
   pdfParser.loadPDF(path.resolve('teachers', 'shorts.pdf'));

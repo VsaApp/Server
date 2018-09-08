@@ -50,6 +50,7 @@ this.readTeacherList = resolve => {
     });
     resolve(teacherList);
     console.log('Downloaded teacher\'s mails');
+    module.parent.exports();
   });
 
   pdfParser.loadPDF(path.resolve('teachers', 'mails.pdf'));

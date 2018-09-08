@@ -87,6 +87,7 @@ this.readAGList = () => {
     }
     fs.writeFileSync(path.resolve('ags', 'list.json'), JSON.stringify(ags, null, 2));
     console.log('Downloaded AGs');
+    module.parent.exports();
   }, console.error);
 };
 

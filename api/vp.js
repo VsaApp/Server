@@ -214,6 +214,7 @@ this.getVP = (today, callback) => {
         });
       }
       console.log('Downloaded vp of ' + (today ? 'today' : 'tomorrow'));
+      module.parent.exports();
     }
   }).auth(config.username, config.password, false);
 };

@@ -78,6 +78,7 @@ this.listDocuments = () => {
               groups: groups
             }, null, 2));
             console.log('Downloaded documents list');
+            module.parent.exports();
             resolve(documents);
           }
         });
