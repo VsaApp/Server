@@ -158,6 +158,7 @@ setInterval(() => {
 }, 60000);
 
 function onVPUpdate(grade, data) {
+  module.exports();
   firebase.send(grade, JSON.stringify(data));
 }
 
