@@ -12,216 +12,173 @@ let vpTomorrow = {};
 
 this.getVP = (today, callback) => {
   request('http://www.viktoriaschule-aachen.de/sundvplan/vps/' + (today ? 'left' : 'right') + '.html', (error, response, body) => {
-    if (!response) {
-      this.getVP(today, callback);
-      return;
-    }
-    if (response.statusCode !== 200) {
-      console.error(body);
-      process.exit(1);
-    }
-    const html = parser.parse(body);
-    const dateStr = html.querySelectorAll('div')[0].childNodes[0].rawText.substr(1).replace('-Klassen-Vertretungsplan für ', '');
-    const time = html.querySelectorAll('div')[1].childNodes[0].rawText.replace('Viktoriaschule Aachen, den ', '').split(' um ')[1];
-    const date = new Date(dateStr);
-    date.setHours(date.getHours() + 1);
-    const weekday = dateStr.split(', ')[0];
-    let update = false;
-    if (today && lastToday !== dateStr + time) {
-      update = true;
-    }
-    if (!today && lastTomorrow !== dateStr + time) {
-      update = true;
-    }
-    if (update) {
-      if (today) {
-        lastToday = dateStr + time;
-      } else {
-        lastTomorrow = dateStr + time;
+      if (!response) {
+        this.getVP(today, callback);
+        return;
       }
-      vpToday = {
-        '5a': [],
-        '5b': [],
-        '5c': [],
-        '6a': [],
-        '6b': [],
-        '6c': [],
-        '7a': [],
-        '7b': [],
-        '7c': [],
-        '8a': [],
-        '8b': [],
-        '8c': [],
-        '9a': [],
-        '9b': [],
-        '9c': [],
-        'EF': [],
-        'Q1': [],
-        'Q2': [],
-        '13': []
-      };
-      vpTomorrow = {
-        '5a': [],
-        '5b': [],
-        '5c': [],
-        '6a': [],
-        '6b': [],
-        '6c': [],
-        '7a': [],
-        '7b': [],
-        '7c': [],
-        '8a': [],
-        '8b': [],
-        '8c': [],
-        '9a': [],
-        '9b': [],
-        '9c': [],
-        'EF': [],
-        'Q1': [],
-        'Q2': [],
-        '13': []
-      };
-      try {
-        const table = html.querySelectorAll('table')[0];
-        let prevGrade = '';
-        // Add all timestamps...
-        for (const grade in vpToday) {
+      if (response.statusCode !== 200) {
+        console.error(body);
+        process.exit(1);
+      }
+      const html = parser.parse(body);
+      const dateStr = html.querySelectorAll('div')[0].childNodes[0].rawText.substr(1).replace('-Klassen-Vertretungsplan für ', '');
+      const time = html.querySelectorAll('div')[1].childNodes[0].rawText.replace('Viktoriaschule Aachen, den ', '').split(' um ')[1];
+      const date = new Date(dateStr);
+      date.setHours(date.getHours() + 1);
+      const weekday = dateStr.split(', ')[0];
+      let update = false;
+      if (today && lastToday !== dateStr + time) {
+        update = true;
+      }
+      if (!today && lastTomorrow !== dateStr + time) {
+        update = true;
+      }
+      if (update) {
+        if (today) {
+          lastToday = dateStr + time;
+        } else {
+          lastTomorrow = dateStr + time;
+        }
+        ['5a', '5b', '5c', '6a', '6b', '6c', '7a', '7b', '7c', '8a', '8b', '8c', '9a', '9b', '9c', 'EF', 'Q1', 'Q2', '13'].forEach(grade => {
           vpToday[grade] = {
             date: date.getUTCDate() + '.' + (date.getUTCMonth() + 1) + '.' + date.getUTCFullYear(),
             time: time,
             weekday: weekday,
             changes: []
           };
-        }
-        for (const grade2 in vpTomorrow) {
-          vpTomorrow[grade2] = {
+          vpTomorrow[grade] = {
             date: date.getUTCDate() + '.' + (date.getUTCMonth() + 1) + '.' + date.getUTCFullYear(),
             time: time,
             weekday: weekday,
             changes: []
           };
-        }
-        // Read the vp...
-        for (let i = 1; i < table.childNodes.length; i++) {
-          let data = {
-            grade: '',
-            unit: '',
-            lesson: '',
-            changed: {
-              info: '',
-              teacher: '',
-              room: ''
-            }
-          };
-          for (let j = 0; j < table.childNodes[i].childNodes.length; j++) {
-            let text = '';
-            for (let k = 0; k < table.childNodes[i].childNodes[j].childNodes.length; k++) {
-              text += table.childNodes[i].childNodes[j].childNodes[k].childNodes[0].rawText + '\n';
-            }
-            text = text.slice(0, -1);
-            text = text.replace('*** ', '');
-            if (text.length === 1) {
-              text = '';
-            }
-            if (j === 0) {
-              if (text.startsWith('···')) {
-                data.grade = prevGrade;
-              } else {
-                data.grade = text.split(' ')[0].slice(0, -1);
-                prevGrade = data.grade;
+        });
+        try {
+          const table = html.querySelectorAll('table')[0];
+          let prevGrade = '';
+          // Read the vp...
+          for (let i = 1; i < table.childNodes.length; i++) {
+            let data = {
+              grade: '',
+              unit: 0,
+              lesson: '',
+              type: '',
+              room: '',
+              changed: {
+                info: '',
+                teacher: '',
+                room: ''
               }
-              data.unit = text.split(' ')[1].slice(0, -1);
-            } else if (j === 2) {
-              if (text === '') {
-                for (let l = 0; l < table.childNodes[i].childNodes[1].childNodes.length; l++) {
-                  text += table.childNodes[i].childNodes[1].childNodes[l].childNodes[0].rawText + '\n';
+            };
+            for (let j = 0; j < table.childNodes[i].childNodes.length; j++) {
+              let text = '';
+              for (let k = 0; k < table.childNodes[i].childNodes[j].childNodes.length; k++) {
+                text += table.childNodes[i].childNodes[j].childNodes[k].childNodes[0].rawText + '\n';
+              }
+              text = text.slice(0, -1);
+              text = text.replace('*** ', '');
+              if (text.length === 1) {
+                text = '';
+              }
+              text = text.trim();
+              if (j === 0) {
+                if (text.startsWith('···')) {
+                  data.grade = prevGrade;
+                } else {
+                  data.grade = text.split(' ')[0].slice(0, -1);
+                  prevGrade = data.grade;
                 }
+                data.unit = parseInt(text.split(' ')[1].slice(0, -1));
+              } else if (j === 1) {
+                text = text.replace('\n', '').replace('(', '').replace(')', '');
+                if ((text.match(/ /g) || []).length === 1) {
+                  data.lesson = text.split(' ')[0].toUpperCase();
+                  data.room = text.split(' ')[1].toUpperCase();
+                } else {
+                  data.lesson = text.split(' ')[1].toUpperCase();
+                  data.type = text.split(' ')[2].toUpperCase();
+                  data.room = text.split(' ')[3].toUpperCase();
+                }
+              } else {
+                // TODO: Add exams here
+                text = text.replace('\n', ' ');
+                let parsed = false;
                 while (text.includes('  ')) {
                   text = text.replace('  ', ' ');
                 }
-                const split = text.split('\n');
-                if (text.startsWith('Klausur:')) {
-                  if (split[1] !== 'Nachschreiber') {
-                    data.lesson = split[1].split(' ')[2] + (split[1].split(' ')[3] === undefined ? '' : ' ' + split[1].split(' ')[3]);
-                    data.changed.info = split[1].split(' ')[2] + (split[1].split(' ')[3] === undefined ? '' : ' ' + split[1].split(' ')[3]) + ' Klausur';
-                  } else {
-                    data.changed.info = 'Nachschreiber Klausur';
-                  }
-                  data.changed.teacher = split[split.length - 2].split(':')[0];
-                  data.changed.room = split[split.length - 2].split(' ')[split[split.length - 2].split(' ').length - 1];
-                } else {
-                  data.lesson = split[0].substr(3).trim();
-                  data.changed.info = 'Freistunde';
+                if (text.toLowerCase().includes('r-ändg.')) {
+                  data.changed.info += 'Raumänderung ';
+                  data.changed.room += text.split(' ')[text.split(' ').length - 1].toUpperCase();
+                  parsed = true;
                 }
-              } else {
-                const lines = (text.match(/\n/g) || []).length + 1;
-                const g = table.childNodes[i].childNodes[1].childNodes[0].childNodes[0].rawText;
-                if (lines === 1) {
-                  if (text === 'Studienzeit') {
-                    data.lesson = g.split(' ')[1] + ' ' + g.split(' ')[2];
-                    data.changed.info = 'Freistunde';
-                  } else {
-                    data.lesson = g.split(' ')[1];
-                    if (text.startsWith('R-Ändg. ')) {
-                      data.changed.room = text.split(' ')[1];
-                      data.changed.info = 'Raumänderung';
-                    } else {
-                      data.changed.info = text;
-                    }
-                  }
-                } else {
-                  const split = text.split('\n');
-                  data.lesson = g.split(' ')[1];
-                  data.changed.teacher = split[0].split(' ')[0];
-                  data.changed.info = split[0].split(' ')[1];
-                  for (let m = 0; m < split.length; m++) {
-                    if (split[m].startsWith('R-Ändg. ')) {
-                      data.changed.room = split[m].split(' ')[1];
-                      break;
-                    }
-                  }
+                if (text.toLowerCase() === 'referendar(in)') {
+                  data.changed.info += 'Referendar(in) ';
+                  parsed = true;
                 }
+                if (text.toLowerCase().includes('m.aufg.')) {
+                  data.changed.info += 'Mit Aufgaben ';
+                  data.changed.teacher = text.split(' ')[0];
+                  data.changed.room = text.split(' ')[text.split(' ').length - 1].toUpperCase();
+                  parsed = true;
+                }
+                if (text.toLowerCase() === 'abgehängt' || text.toLowerCase() === 'abghgt.' || text.toLowerCase() === 'u-frei' || text.toLowerCase() === 'studienzeit') {
+                  data.changed.info = 'Freistunde ';
+                  parsed = true;
+                }
+                if (text.toLowerCase().includes('v.')) {
+                  data.changed.info += 'Vertretung ';
+                  parsed = true;
+                }
+                if (text.toLowerCase().includes('versch.')) {
+                  data.changed.info += 'Verschoben ';
+                  parsed = true;
+                }
+                if (!parsed) {
+                  data.changed.info = text;
+                }
+                data.changed.info = data.changed.info.trim();
               }
             }
-          }
-          data.changed.room = data.changed.room
-            .replace('klHa', 'kleine Halle')
-            .replace('grHa', 'große Halle')
-            .replace('Ku1', 'Kunst 1')
-            .replace('Ku2', 'Kunst 2');
-          data.changed.info = data.changed.info
-            .replace(/abghgt\.|abgehängt/ig, 'Abgehängt')
-            .replace('versch.', 'Verschoben')
-            .replace('m.Aufg.', 'Mit Aufgaben')
-            .replace('v.', 'Vertretung')
-            .replace('Aufs.aus', 'Aufsicht aus')
-            .replace('U-frei', 'Unterrichtsausfall');
-          if (today) {
-            vpToday[data.grade].changes.push(data);
-          } else {
-            vpTomorrow[data.grade].changes.push(data);
+            data.changed.room = data.changed.room
+              .replace(/KLHA|KLH/, 'kleine Halle')
+              .replace(/GRHA|GRH/, 'große Halle')
+              .replace('KU1', 'Kunst 1')
+              .replace('KU2', 'Kunst 2');
+            data.room = data.room
+              .replace(/KLHA|KLH/, 'kleine Halle')
+              .replace(/GRHA|GRH/, 'große Halle')
+              .replace('KU1', 'Kunst 1')
+              .replace('KU2', 'Kunst 2');
+            if (today) {
+              vpToday[data.grade].changes.push(data);
+            } else {
+              vpTomorrow[data.grade].changes.push(data);
+            }
           }
         }
-      } catch (e) {
-        console.log(e);
-      }
+        catch
+          (e) {
+          console.log(e);
+        }
 
-      if (today) {
-        Object.keys(vpToday).forEach(key => {
-          callback(key, vpToday[key]);
-          fs.writeFileSync(path.resolve('vp', 'today', key + '.json'), JSON.stringify(vpToday[key], null, 2));
-        });
-      } else {
-        Object.keys(vpTomorrow).forEach(key => {
-          callback(key, vpTomorrow[key]);
-          fs.writeFileSync(path.resolve('vp', 'tomorrow', key + '.json'), JSON.stringify(vpTomorrow[key], null, 2));
-        });
+        if (today) {
+          Object.keys(vpToday).forEach(key => {
+            callback(key, vpToday[key]);
+            fs.writeFileSync(path.resolve('vp', 'today', key + '.json'), JSON.stringify(vpToday[key], null, 2));
+          });
+        } else {
+          Object.keys(vpTomorrow).forEach(key => {
+            callback(key, vpTomorrow[key]);
+            fs.writeFileSync(path.resolve('vp', 'tomorrow', key + '.json'), JSON.stringify(vpTomorrow[key], null, 2));
+          });
+        }
+        console.log('Downloaded vp of ' + (today ? 'today' : 'tomorrow'));
+        module.parent.exports();
       }
-      console.log('Downloaded vp of ' + (today ? 'today' : 'tomorrow'));
-      module.parent.exports();
     }
-  }).auth(config.username, config.password, false);
-};
+  ).auth(config.username, config.password, false);
+}
+;
 
 this.setConfig = c => {
   config = c;
