@@ -1,6 +1,4 @@
 const request = require('request');
-const fs = require('fs');
-const path = require('path');
 const parser = require('fast-html-parser');
 
 let config = {};
@@ -73,13 +71,15 @@ this.listDocuments = () => {
                 return t.text === document.text;
               });
             });
-            fs.writeFileSync(path.resolve('documents', 'list.json'), JSON.stringify({
+            documents = documents.map(document => {
+              document.text = document.text.replace(/"/g, '').replace(/'/g, '').replace(/, $/m, '');
+              return document;
+            });
+            console.log('Downloaded documents list');
+            resolve({
               documents: documents,
               groups: groups
-            }, null, 2));
-            console.log('Downloaded documents list');
-            module.parent.exports();
-            resolve(documents);
+            });
           }
         });
       });
