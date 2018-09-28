@@ -76,6 +76,19 @@ if (fs.existsSync('./config/config.json')) {
                   });
                 }
 
+                  function getHash(table) {
+                      return new Promise((resolve, reject) => {
+                          pool.query('SELECT MD5(data) AS data FROM ' + table + ' t WHERE t.time = (SELECT MAX(subt.time) FROM ' + table + ' subt);', (error, results) => {
+                              if (error) {
+                                  console.log(error);
+                                  reject(error);
+                                  return;
+                              }
+                              resolve((results[0] || {data: []}).data);
+                          });
+                      });
+                  }
+
                 app.use('/teachers/list.json', (req, res) => {
                   getData('teachers').then(data => {
                     res.send(data);
@@ -122,6 +135,45 @@ if (fs.existsSync('./config/config.json')) {
                     res.send(data);
                   });
                 });
+                  app.use('/sums/list.json', (req, res) => {
+                      let obj = {};
+                      getHash('teachers').then(h => {
+                          obj.teachers = h;
+                          getHash('dates').then(h => {
+                              obj.dates = h;
+                              getHash('ags').then(h => {
+                                  obj.ags = h;
+                                  getHash('documents').then(h => {
+                                      obj.documents = h;
+                                      getHash('sp').then(h => {
+                                          obj.sp = h;
+                                          getHash('vptoday').then(h => {
+                                              obj['vp/today'] = h;
+                                              getHash('vptomorrow').then(h => {
+                                                  obj['vp/tomorrow'] = h;
+                                                  res.send(obj);
+                                              }).catch(data => {
+                                                  res.send(data);
+                                              });
+                                          }).catch(data => {
+                                              res.send(data);
+                                          });
+                                      }).catch(data => {
+                                          res.send(data);
+                                      });
+                                  }).catch(data => {
+                                      res.send(data);
+                                  });
+                              }).catch(data => {
+                                  res.send(data);
+                              });
+                          }).catch(data => {
+                              res.send(data);
+                          });
+                      }).catch(data => {
+                          res.send(data);
+                      });
+                  });
                 app.get('/validate', (req, res) => {
                   if (!('username' in req.query)) {
                     res.send('2');
