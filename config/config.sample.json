@@ -6,5 +6,10 @@
     "HIN": "female",
     "SND": "male",
     "SER": "female"
-  }
+  },
+  "dbhost": "theserver",
+  "dbport": 3306,
+  "dbuser": "theusername",
+  "dbpassword": "thepassword",
+  "apidb": "thedb"
 }

@@ -1,8 +1,7 @@
 const express = require('express');
 const fs = require('fs');
-const path = require('path');
 const crypto = require('crypto');
-const hashFiles = require('hash-files');
+const mysql = require('mysql');
 const sp = require('./sp');
 const vp = require('./vp');
 const teachersShort = require('./teachersShort');
@@ -15,169 +14,230 @@ const firebase = require('./firebase');
 
 const app = express();
 let config = {};
+let pool;
+
+if (!fs.existsSync('tmp')) {
+  fs.mkdirSync('tmp');
+}
 
 if (fs.existsSync('./config/config.json')) {
   config = JSON.parse(fs.readFileSync('./config/config.json', 'utf-8'));
 
-  if (!('username' in config)) {
-    throw new Error('Missing username in config');
-  }
-  if (!('password' in config)) {
-    throw new Error('Missing password in config');
-  }
+  ['username', 'password', 'dbhost', 'dbuser', 'dbpassword', 'dbport', 'apidb'].forEach(name => {
+    if (!(name in config)) {
+      throw new Error('Missing ' + name + ' in config');
+    }
+  });
 
   config.usernamesha = crypto.createHash('sha256').update(config.username).digest('hex');
-
   config.passwordsha = crypto.createHash('sha256').update(config.password).digest('hex');
 
-  if (!fs.existsSync('teachers')) {
-    fs.mkdirSync('teachers');
-  }
-  if (!fs.existsSync('dates')) {
-    fs.mkdirSync('dates');
-  }
-  if (!fs.existsSync('ags')) {
-    fs.mkdirSync('ags');
-  }
-  if (!fs.existsSync('documents')) {
-    fs.mkdirSync('documents');
-  }
-  if (!fs.existsSync('sp')) {
-    fs.mkdirSync('sp');
-  }
-  if (!fs.existsSync('vp')) {
-    fs.mkdirSync('vp');
-  }
-  if (!fs.existsSync(path.resolve('vp', 'today'))) {
-    fs.mkdirSync(path.resolve('vp', 'today'));
-  }
-  if (!fs.existsSync(path.resolve('vp', 'tomorrow'))) {
-    fs.mkdirSync(path.resolve('vp', 'tomorrow'));
-  }
-  if (!fs.existsSync('sums')) {
-    fs.mkdirSync('sums');
-  }
-
-  sp.setConfig(config);
-  vp.setConfig(config);
-  teachersShort.setConfig(config);
-  teachersMail.setConfig(config);
-  ags.setConfig(config);
-  documents.setConfig(config);
-
-  app.use('/teachers', express.static('teachers'));
-  app.use('/dates', express.static('dates'));
-  app.use('/ags', express.static('ags'));
-  app.use('/documents', express.static('documents'));
-  app.use('/sums', express.static('sums'));
-  app.use('/sp', express.static('sp'));
-  app.use('/vp', express.static('vp'));
-  app.get('/validate', (req, res) => {
-    if (!('username' in req.query)) {
-      res.send('2');
-      return;
-    }
-    if (!('password' in req.query)) {
-      res.send('3');
-      return;
-    }
-    if (req.query.username !== config.usernamesha || req.query.password !== config.passwordsha) {
-      res.send('1');
-      return;
-    }
-    res.send('0');
+  pool = mysql.createPool({
+    connectionLimit: 10,
+    host: config.dbhost,
+    user: config.dbuser,
+    password: config.dbpassword,
+    port: config.dbport,
+    database: config.apidb
   });
-  cafetoria.host(app);
-  app.listen(80, () => {
-    console.log('Listening on *:' + 80);
+
+  pool.query('CREATE TABLE IF NOT EXISTS`' + config.apidb + '`.`teachers` ( `time` BIGINT NOT NULL , `data` TEXT NOT NULL ) ENGINE = InnoDB;', error => {
+    if (error) throw error;
+    pool.query('CREATE TABLE IF NOT EXISTS`' + config.apidb + '`.`dates` ( `time` BIGINT NOT NULL , `data` TEXT NOT NULL ) ENGINE = InnoDB;', error => {
+      if (error) throw error;
+      pool.query('CREATE TABLE IF NOT EXISTS`' + config.apidb + '`.`ags` ( `time` BIGINT NOT NULL , `data` TEXT NOT NULL ) ENGINE = InnoDB;', error => {
+        if (error) throw error;
+        pool.query('CREATE TABLE IF NOT EXISTS`' + config.apidb + '`.`documents` ( `time` BIGINT NOT NULL , `data` TEXT NOT NULL ) ENGINE = InnoDB;', error => {
+          if (error) throw error;
+          pool.query('CREATE TABLE IF NOT EXISTS`' + config.apidb + '`.`sp` ( `time` BIGINT NOT NULL , `data` TEXT NOT NULL ) ENGINE = InnoDB;', error => {
+            if (error) throw error;
+            pool.query('CREATE TABLE IF NOT EXISTS`' + config.apidb + '`.`vptoday` ( `time` BIGINT NOT NULL , `data` TEXT NOT NULL ) ENGINE = InnoDB;', error => {
+              if (error) throw error;
+              pool.query('CREATE TABLE IF NOT EXISTS`' + config.apidb + '`.`vptomorrow` ( `time` BIGINT NOT NULL , `data` TEXT NOT NULL ) ENGINE = InnoDB;', error => {
+                if (error) throw error;
+                console.log('Connected to DB');
+                sp.setConfig(config);
+                vp.setConfig(config);
+                teachersShort.setConfig(config);
+                teachersMail.setConfig(config);
+                ags.setConfig(config);
+                documents.setConfig(config);
+
+                function getData(table) {
+                  return new Promise((resolve, reject) => {
+                    pool.query('SELECT data FROM ' + table + ' t WHERE t.time = (SELECT MAX(subt.time) FROM ' + table + ' subt);', (error, results) => {
+                      if (error) {
+                        console.log(error);
+                        reject(error);
+                        return;
+                      }
+                      resolve((results[0] || {data: []}).data);
+                    });
+                  });
+                }
+
+                app.use('/teachers/list.json', (req, res) => {
+                  getData('teachers').then(data => {
+                    res.send(data);
+                  }).catch(data => {
+                    res.send(data);
+                  });
+                });
+                app.use('/dates/list.json', (req, res) => {
+                  getData('dates').then(data => {
+                    res.send(data);
+                  }).catch(data => {
+                    res.send(data);
+                  });
+                });
+                app.use('/ags/list.json', (req, res) => {
+                  getData('ags').then(data => {
+                    res.send(data);
+                  }).catch(data => {
+                    res.send(data);
+                  });
+                });
+                app.use('/documents/list.json', (req, res) => {
+                  getData('documents').then(data => {
+                    res.send(data);
+                  }).catch(data => {
+                    res.send(data);
+                  });
+                });
+                app.use('/sp/:grade.json', (req, res) => {
+                  getData('sp').then(data => {
+                    res.send(JSON.parse(data).filter(obj => {
+                      return obj.grade === req.params.grade;
+                    })[0].plan);
+                  }).catch(data => {
+                    res.send(data);
+                  });
+                });
+                app.use('/vp/:day/:grade.json', (req, res) => {
+                  getData('vp' + req.params.day).then(data => {
+                    res.send(JSON.parse(data).filter(obj => {
+                      return obj.grade === req.params.grade;
+                    })[0].vp);
+                  }).catch(data => {
+                    res.send(data);
+                  });
+                });
+                app.get('/validate', (req, res) => {
+                  if (!('username' in req.query)) {
+                    res.send('2');
+                    return;
+                  }
+                  if (!('password' in req.query)) {
+                    res.send('3');
+                    return;
+                  }
+                  if (req.query.username !== config.usernamesha || req.query.password !== config.passwordsha) {
+                    res.send('1');
+                    return;
+                  }
+                  res.send('0');
+                });
+                cafetoria.host(app);
+                app.listen(80, () => {
+                  console.log('Listening on *:' + 80);
+                });
+                let shorts = [];
+                let mails = [];
+
+                teachersShort.downloadTeacherPDF().then(teacherList => {
+                  teacherList = teacherList.sort((a, b) => {
+                    const textA = a.longName.toUpperCase();
+                    const textB = b.longName.toUpperCase();
+                    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                  });
+                  shorts = teacherList;
+                  checkTeachers();
+                });
+                teachersMail.downloadTeacherPDF().then(teacherList => {
+                  teacherList = teacherList.sort((a, b) => {
+                    const textA = a.replace('Herr ').replace('Frau ').toUpperCase();
+                    const textB = b.replace('Herr ').replace('Frau ').toUpperCase();
+                    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                  });
+                  mails = teacherList;
+                  checkTeachers();
+                });
+                documents.listDocuments().then(documents => {
+                  pool.query('INSERT INTO `documents`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(documents) + '\')', error => {
+                    if (error) throw error;
+                  });
+                  ags.downloadAGPDF(documents.documents).then(ags => {
+                    pool.query('INSERT INTO `ags`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(ags) + '\')', error => {
+                      if (error) throw error;
+                    });
+                  });
+                  dates.downloadDatesPDF(documents.documents).then(dates => {
+                    pool.query('INSERT INTO `dates`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(dates) + '\')', error => {
+                      if (error) throw error;
+                    });
+                  });
+                });
+
+                function overrideGender(short) {
+                  if ('genders' in config) {
+                    if (short in config.genders) {
+                      return config.genders[short];
+                    }
+                  } else {
+                    return null;
+                  }
+                }
+
+                function checkTeachers() {
+                  if (shorts.length > 0 && mails.length > 0) {
+                    for (let i = 0; i < shorts.length; i++) {
+                      const gender = overrideGender(shorts[i].shortName);
+                      if (gender) {
+                        shorts[i].gender = gender;
+                      } else {
+                        shorts[i].gender = (mails[i].startsWith('Herr ') ? 'male' : 'female');
+                      }
+                    }
+                    pool.query('INSERT INTO `teachers`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(shorts) + '\')', error => {
+                      if (error) throw error;
+                    });
+                  }
+                }
+
+                sp.downloadSP().then(sp => {
+                  pool.query('INSERT INTO `sp`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(sp) + '\')', error => {
+                    if (error) throw error;
+                  });
+                });
+
+                vp.getVP(true, () => {
+                }).then(vp => {
+                  pool.query('INSERT INTO `vptoday`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(vp) + '\')', error => {
+                    if (error) throw error;
+                  });
+                });
+                vp.getVP(false, () => {
+                }).then(vp => {
+                  pool.query('INSERT INTO `vptomorrow`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(vp) + '\')', error => {
+                    if (error) throw error;
+                  });
+                });
+
+                setInterval(() => {
+                  vp.getVP(true, onVPUpdate);
+                  vp.getVP(false, onVPUpdate);
+                }, 60000);
+
+                function onVPUpdate(grade, data) {
+                  firebase.send(grade, JSON.stringify(data));
+                }
+              });
+            });
+          });
+        });
+      });
+    });
   });
 } else {
   throw new Error('config.json missing');
 }
-
-let shorts = [];
-let mails = [];
-
-teachersShort.downloadTeacherPDF().then(teacherList => {
-  teacherList = teacherList.sort((a, b) => {
-    const textA = a.longName.toUpperCase();
-    const textB = b.longName.toUpperCase();
-    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-  });
-  shorts = teacherList;
-  checkTeachers();
-});
-teachersMail.downloadTeacherPDF().then(teacherList => {
-  teacherList = teacherList.sort((a, b) => {
-    const textA = a.replace('Herr ').replace('Frau ').toUpperCase();
-    const textB = b.replace('Herr ').replace('Frau ').toUpperCase();
-    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-  });
-  mails = teacherList;
-  checkTeachers();
-});
-documents.listDocuments().then(documents => {
-  ags.downloadAGPDF(documents);
-  dates.downloadDatesPDF(documents);
-});
-
-function overrideGender(short) {
-  if ('genders' in config) {
-    if (short in config.genders) {
-      return config.genders[short];
-    }
-  } else {
-    return null;
-  }
-}
-
-function checkTeachers() {
-  if (shorts.length > 0 && mails.length > 0) {
-    for (let i = 0; i < shorts.length; i++) {
-      const gender = overrideGender(shorts[i].shortName);
-      if (gender) {
-        shorts[i].gender = gender;
-      } else {
-        shorts[i].gender = (mails[i].startsWith('Herr ') ? 'male' : 'female');
-      }
-    }
-    fs.writeFileSync(path.resolve('teachers', 'list.json'), JSON.stringify(shorts, null, 2));
-  }
-}
-
-sp.downloadSP();
-
-vp.getVP(true, () => {
-});
-vp.getVP(false, () => {
-});
-
-setInterval(() => {
-  vp.getVP(true, onVPUpdate);
-  vp.getVP(false, onVPUpdate);
-}, 60000);
-
-function onVPUpdate(grade, data) {
-  module.exports();
-  firebase.send(grade, JSON.stringify(data));
-}
-
-let hashes = {};
-
-module.exports = () => {
-  const files = ['ags/list.json', 'dates/list.json', 'documents/list.json', 'sp/*', 'teachers/list.json', 'vp/today/*', 'vp/tomorrow/*'];
-  let got = 0;
-  files.forEach(file => {
-    hashFiles({files: [file], algorithm: 'sha256'}, (error, hash) => {
-      if (error) {
-        throw error;
-      }
-      const name = file.replace(/\/list.json|\/\*/ig, '');
-      hashes[name] = hash;
-      got++;
-      if (got === files.length) {
-        fs.writeFileSync(path.resolve('sums', 'list.json'), JSON.stringify(hashes, null, 2));
-      }
-    });
-  });
-};

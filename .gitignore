@@ -65,12 +65,4 @@ config.json
 firebase.json
 connections.json
 choices.json
-
-# lists
-sp
-vp
-teachers
-dates
-ags
-documents
-sums
+tmp

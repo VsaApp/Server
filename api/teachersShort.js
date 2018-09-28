@@ -8,7 +8,7 @@ let config = {};
 this.downloadTeacherPDF = () => {
   const p = this;
   return new Promise((resolve, reject) => {
-    const stream = fs.createWriteStream(path.resolve('teachers', 'shorts.pdf'));
+    const stream = fs.createWriteStream(path.resolve('tmp', 'shorts.pdf'));
     const cookieJar = request.jar();
     request.post({
       url: 'http://viktoriaschule-aachen.de/index.php',
@@ -78,10 +78,9 @@ this.readTeacherList = resolve => {
     });
     resolve(teacherList);
     console.log('Downloaded teacher\'s shortnames');
-    module.parent.exports();
   });
 
-  pdfParser.loadPDF(path.resolve('teachers', 'shorts.pdf'));
+  pdfParser.loadPDF(path.resolve('tmp', 'shorts.pdf'));
 };
 
 this.setConfig = c => {

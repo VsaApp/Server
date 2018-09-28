@@ -6,18 +6,20 @@ const pdf_table_extractor = require('pdf-table-extractor');
 let config = {};
 
 this.downloadDatesPDF = documents => {
-  const document = documents.filter(document => {
-    return document.text.startsWith('Übersichtsplanung über die Termine im Schuljahr');
-  })[0];
-  const p = this;
-  const stream = fs.createWriteStream(path.resolve('dates', 'list.pdf'));
-  request(document.url).pipe(stream);
-  stream.on('finish', () => {
-    p.readDatesList();
+  return new Promise(resolve => {
+    const document = documents.filter(document => {
+      return document.text.startsWith('Übersichtsplanung über die Termine im Schuljahr');
+    })[0];
+    const p = this;
+    const stream = fs.createWriteStream(path.resolve('tmp', 'dates.pdf'));
+    request(document.url).pipe(stream);
+    stream.on('finish', () => {
+      p.readDatesList(resolve);
+    });
   });
 };
 
-this.readDatesList = () => {
+this.readDatesList = resolve => {
   const out = {
     years: [],
     holidays: [],
@@ -27,7 +29,7 @@ this.readDatesList = () => {
     conferences: [],
     gradesReleases: []
   };
-  pdf_table_extractor(path.resolve('dates', 'list.pdf'), result => {
+  pdf_table_extractor(path.resolve('tmp', 'dates.pdf'), result => {
     result.pageTables[0].tables[0][0].split('\n').forEach(line => {
       if (line.includes('Ferienordnung')) {
         out.years = line.replace('Ferienordnung ', '').split(' ')[0].split('/').map(year => {
@@ -47,9 +49,8 @@ this.readDatesList = () => {
     getConsultationDays(lines);
     getGradeReleases(lines);
     getConferences(lines);
-    fs.writeFileSync(path.resolve('dates', 'list.json'), JSON.stringify(out, null, 2));
     console.log('Downloaded dates');
-    module.parent.exports();
+    resolve(out);
   }, console.error);
 
   function getConferences(lines) {

@@ -6,19 +6,21 @@ const pdf_table_extractor = require('pdf-table-extractor');
 let config = {};
 
 this.downloadAGPDF = documents => {
-  const document = documents.filter(document => {
-    return document.text.startsWith('Gesamtübersicht AGs im Schuljahr');
-  })[0];
-  const p = this;
-  const stream = fs.createWriteStream(path.resolve('ags', 'list.pdf'));
-  request.get(document.url).pipe(stream);
-  stream.on('finish', () => {
-    p.readAGList();
+  return new Promise(resolve => {
+    const document = documents.filter(document => {
+      return document.text.startsWith('Gesamtübersicht AGs im Schuljahr');
+    })[0];
+    const p = this;
+    const stream = fs.createWriteStream(path.resolve('tmp', 'ags.pdf'));
+    request.get(document.url).pipe(stream);
+    stream.on('finish', () => {
+      p.readAGList(resolve);
+    });
   });
 };
 
-this.readAGList = () => {
-  pdf_table_extractor(path.resolve('ags', 'list.pdf'), result => {
+this.readAGList = resolve => {
+  pdf_table_extractor(path.resolve('tmp', 'ags.pdf'), result => {
     const tables = result.pageTables[0].tables;
     const ags = [];
     for (let i = 0; i < tables[0].length; i++) {
@@ -85,9 +87,8 @@ this.readAGList = () => {
         ags[i].ags.push(o);
       }
     }
-    fs.writeFileSync(path.resolve('ags', 'list.json'), JSON.stringify(ags, null, 2));
     console.log('Downloaded AGs');
-    module.parent.exports();
+    resolve(ags);
   }, console.error);
 };
 

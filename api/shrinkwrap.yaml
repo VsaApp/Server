@@ -5,6 +5,7 @@ dependencies:
   firebase-admin: 5.12.1
   fs: 0.0.1-security
   hash-files: 1.1.1
+  mysql: 2.16.0
   path: 0.12.7
   pdf-table-extractor: 1.0.3
   pdf2json: 1.1.7
@@ -460,6 +461,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-+hN/Zh2D08Mx65pZ/4g5bsmNiZUuChDiQfTUQ7qJr4/kuopCr88xZsAXv6mBoZEsUI4OuGHlX59qE94K2mMW8Q==
+  /bignumber.js/4.1.0:
+    dev: false
+    resolution:
+      integrity: sha512-eJzYkFYy9L4JzXsbymsFn3p54D+llV27oTQ+ziJG7WFRheJcNZilgVXMG0LoZtlQSKBsJdWtLFqOD0u+U0jZKA==
   /body-parser/1.18.2:
     dependencies:
       bytes: 3.0.0
@@ -1999,6 +2004,17 @@ packages:
     dev: false
     resolution:
       integrity: sha512-tgp+dl5cGk28utYktBsrFqA7HKgrhgPsg6Z/EfhWI4gl1Hwq8B/GmY/0oXZ6nF8hDVesS/FpnYaD/kOWhYQvyg==
+  /mysql/2.16.0:
+    dependencies:
+      bignumber.js: 4.1.0
+      readable-stream: 2.3.6
+      safe-buffer: 5.1.2
+      sqlstring: 2.3.1
+    dev: false
+    engines:
+      node: '>= 0.6'
+    resolution:
+      integrity: sha512-dPbN2LHonQp7D5ja5DJXNbCLe/HRdu+f3v61aguzNRQIrmZLOeRoymBYyeThrR6ug+FqzDL95Gc9maqZUJS+Gw==
   /nan/2.10.0:
     dev: false
     resolution:
@@ -2692,6 +2708,12 @@ packages:
     dev: false
     resolution:
       integrity: sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
+  /sqlstring/2.3.1:
+    dev: false
+    engines:
+      node: '>= 0.6'
+    resolution:
+      integrity: sha1-R1OT/56RR5rqYtyvDKPRSYOn+0A=
   /sshpk/1.14.2:
     dependencies:
       asn1: 0.2.3
@@ -3095,6 +3117,7 @@ specifiers:
   firebase-admin: ^5.12.1
   fs: 0.0.1-security
   hash-files: ^1.1.1
+  mysql: ^2.16.0
   path: ^0.12.7
   pdf-table-extractor: ^1.0.3
   pdf2json: ^1.1.7

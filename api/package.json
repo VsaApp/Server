@@ -24,6 +24,7 @@
     "firebase-admin": "^5.12.1",
     "fs": "0.0.1-security",
     "hash-files": "^1.1.1",
+    "mysql": "^2.16.0",
     "path": "^0.12.7",
     "pdf-table-extractor": "^1.0.3",
     "pdf2json": "^1.1.7",
