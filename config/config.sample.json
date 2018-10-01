@@ -11,5 +11,6 @@
   "dbport": 3306,
   "dbuser": "theusername",
   "dbpassword": "thepassword",
-  "apidb": "thedb"
+  "apidb": "thedb",
+  "pinborddb": "anotherdb"
 }

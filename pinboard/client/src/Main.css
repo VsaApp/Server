@@ -1,0 +1,51 @@
+#main {
+    height: 100%;
+}
+
+#mainTitle, #main {
+    flex-grow: 1;
+}
+
+#mainTitle {
+    text-align: left;
+}
+
+#mainNewMessage {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+#mainMessageList {
+    margin: 10px;
+}
+
+#mainMessageList * {
+    display: grid;
+    grid-template-columns: 30% 45% 15% 10%;
+    width: 100%;
+    overflow: hidden;
+    margin: 0;
+}
+
+#mainMessageList * * {
+    width: calc(100% - 10px);
+    margin: 0;
+    padding: 5px;
+    display: block;
+    word-wrap: break-word;
+    text-align: left;
+}
+
+#mainMessageListTime {
+    text-align: center;
+}
+
+.mainMessageListItem {
+    border-bottom: 2px solid gray !important;
+}
+
+#mainFollowersCard {
+    width: calc(100% - 20px);
+    margin: 20px 10px 10px;
+}

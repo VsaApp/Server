@@ -66,3 +66,5 @@ firebase.json
 connections.json
 choices.json
 tmp
+build
+.idea

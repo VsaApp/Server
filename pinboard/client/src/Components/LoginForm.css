@@ -1,0 +1,17 @@
+.loginTextField, .loginButton {
+    margin: 10px;
+    width: 35%;
+}
+
+#loginSubmit {
+    margin-top: 10px;
+}
+
+#loginLogo {
+    width: 25%;
+    margin: 10px;
+}
+
+#loginForm {
+    padding: 20px;
+}
