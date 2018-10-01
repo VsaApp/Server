@@ -63,9 +63,9 @@ if (fs.existsSync('./config/config.json')) {
                 ags.setConfig(config);
                 documents.setConfig(config);
 
-                function getData(table) {
+                function getLatestData(table) {
                   return new Promise((resolve, reject) => {
-                    pool.query('SELECT data FROM ' + table + ' t WHERE t.time = (SELECT MAX(subt.time) FROM ' + table + ' subt);', (error, results) => {
+                    pool.query('SELECT data FROM ' + table + ' ORDER BY time DESC LIMIT 1', (error, results) => {
                       if (error) {
                         console.log(error);
                         reject(error);
@@ -76,49 +76,49 @@ if (fs.existsSync('./config/config.json')) {
                   });
                 }
 
-                  function getHash(table) {
-                      return new Promise((resolve, reject) => {
-                          pool.query('SELECT MD5(data) AS data FROM ' + table + ' t WHERE t.time = (SELECT MAX(subt.time) FROM ' + table + ' subt);', (error, results) => {
-                              if (error) {
-                                  console.log(error);
-                                  reject(error);
-                                  return;
-                              }
-                              resolve((results[0] || {data: []}).data);
-                          });
-                      });
-                  }
+                function getHash(table) {
+                  return new Promise((resolve, reject) => {
+                    pool.query('SELECT MD5(data) AS data FROM ' + table + ' t WHERE t.time = (SELECT MAX(subt.time) FROM ' + table + ' subt);', (error, results) => {
+                      if (error) {
+                        console.log(error);
+                        reject(error);
+                        return;
+                      }
+                      resolve((results[0] || {data: []}).data);
+                    });
+                  });
+                }
 
                 app.use('/teachers/list.json', (req, res) => {
-                  getData('teachers').then(data => {
+                  getLatestData('teachers').then(data => {
                     res.send(data);
                   }).catch(data => {
                     res.send(data);
                   });
                 });
                 app.use('/dates/list.json', (req, res) => {
-                  getData('dates').then(data => {
+                  getLatestData('dates').then(data => {
                     res.send(data);
                   }).catch(data => {
                     res.send(data);
                   });
                 });
                 app.use('/ags/list.json', (req, res) => {
-                  getData('ags').then(data => {
+                  getLatestData('ags').then(data => {
                     res.send(data);
                   }).catch(data => {
                     res.send(data);
                   });
                 });
                 app.use('/documents/list.json', (req, res) => {
-                  getData('documents').then(data => {
+                  getLatestData('documents').then(data => {
                     res.send(data);
                   }).catch(data => {
                     res.send(data);
                   });
                 });
                 app.use('/sp/:grade.json', (req, res) => {
-                  getData('sp').then(data => {
+                  getLatestData('sp').then(data => {
                     res.send(JSON.parse(data).filter(obj => {
                       return obj.grade === req.params.grade;
                     })[0].plan);
@@ -127,7 +127,7 @@ if (fs.existsSync('./config/config.json')) {
                   });
                 });
                 app.use('/vp/:day/:grade.json', (req, res) => {
-                  getData('vp' + req.params.day).then(data => {
+                  getLatestData('vp' + req.params.day).then(data => {
                     res.send(JSON.parse(data).filter(obj => {
                       return obj.grade === req.params.grade;
                     })[0].vp);
@@ -135,45 +135,45 @@ if (fs.existsSync('./config/config.json')) {
                     res.send(data);
                   });
                 });
-                  app.use('/sums/list.json', (req, res) => {
-                      let obj = {};
-                      getHash('teachers').then(h => {
-                          obj.teachers = h;
-                          getHash('dates').then(h => {
-                              obj.dates = h;
-                              getHash('ags').then(h => {
-                                  obj.ags = h;
-                                  getHash('documents').then(h => {
-                                      obj.documents = h;
-                                      getHash('sp').then(h => {
-                                          obj.sp = h;
-                                          getHash('vptoday').then(h => {
-                                              obj['vp/today'] = h;
-                                              getHash('vptomorrow').then(h => {
-                                                  obj['vp/tomorrow'] = h;
-                                                  res.send(obj);
-                                              }).catch(data => {
-                                                  res.send(data);
-                                              });
-                                          }).catch(data => {
-                                              res.send(data);
-                                          });
-                                      }).catch(data => {
-                                          res.send(data);
-                                      });
-                                  }).catch(data => {
-                                      res.send(data);
-                                  });
+                app.use('/sums/list.json', (req, res) => {
+                  let obj = {};
+                  getHash('teachers').then(h => {
+                    obj.teachers = h;
+                    getHash('dates').then(h => {
+                      obj.dates = h;
+                      getHash('ags').then(h => {
+                        obj.ags = h;
+                        getHash('documents').then(h => {
+                          obj.documents = h;
+                          getHash('sp').then(h => {
+                            obj.sp = h;
+                            getHash('vptoday').then(h => {
+                              obj['vp/today'] = h;
+                              getHash('vptomorrow').then(h => {
+                                obj['vp/tomorrow'] = h;
+                                res.send(obj);
                               }).catch(data => {
-                                  res.send(data);
+                                res.send(data);
                               });
-                          }).catch(data => {
+                            }).catch(data => {
                               res.send(data);
+                            });
+                          }).catch(data => {
+                            res.send(data);
                           });
-                      }).catch(data => {
+                        }).catch(data => {
                           res.send(data);
+                        });
+                      }).catch(data => {
+                        res.send(data);
                       });
+                    }).catch(data => {
+                      res.send(data);
+                    });
+                  }).catch(data => {
+                    res.send(data);
                   });
+                });
                 app.get('/validate', (req, res) => {
                   if (!('username' in req.query)) {
                     res.send('2');
@@ -193,6 +193,17 @@ if (fs.existsSync('./config/config.json')) {
                 app.listen(80, () => {
                   console.log('Listening on *:' + 80);
                 });
+
+                function insertData(table, data) {
+                  getLatestData(table).then(d => {
+                    if (JSON.stringify(data) !== d) {
+                      pool.query('INSERT INTO `' + table + '`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(data) + '\')', error => {
+                        if (error) throw error;
+                      });
+                    }
+                  }).catch();
+                }
+
                 let shorts = [];
                 let mails = [];
 
@@ -215,18 +226,12 @@ if (fs.existsSync('./config/config.json')) {
                   checkTeachers();
                 });
                 documents.listDocuments().then(documents => {
-                  pool.query('INSERT INTO `documents`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(documents) + '\')', error => {
-                    if (error) throw error;
-                  });
+                  insertData('documents', documents);
                   ags.downloadAGPDF(documents.documents).then(ags => {
-                    pool.query('INSERT INTO `ags`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(ags) + '\')', error => {
-                      if (error) throw error;
-                    });
+                    insertData('ags', ags);
                   });
                   dates.downloadDatesPDF(documents.documents).then(dates => {
-                    pool.query('INSERT INTO `dates`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(dates) + '\')', error => {
-                      if (error) throw error;
-                    });
+                    insertData('dates', dates);
                   });
                 });
 
@@ -250,29 +255,21 @@ if (fs.existsSync('./config/config.json')) {
                         shorts[i].gender = (mails[i].startsWith('Herr ') ? 'male' : 'female');
                       }
                     }
-                    pool.query('INSERT INTO `teachers`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(shorts) + '\')', error => {
-                      if (error) throw error;
-                    });
+                    insertData('teachers', shorts);
                   }
                 }
 
                 sp.downloadSP().then(sp => {
-                  pool.query('INSERT INTO `sp`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(sp) + '\')', error => {
-                    if (error) throw error;
-                  });
+                  insertData('sp', sp);
                 });
 
                 vp.getVP(true, () => {
                 }).then(vp => {
-                  pool.query('INSERT INTO `vptoday`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(vp) + '\')', error => {
-                    if (error) throw error;
-                  });
+                  insertData('vptoday', vp);
                 });
                 vp.getVP(false, () => {
                 }).then(vp => {
-                  pool.query('INSERT INTO `vptomorrow`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(vp) + '\')', error => {
-                    if (error) throw error;
-                  });
+                  insertData('vptomorrow', vp);
                 });
 
                 setInterval(() => {
