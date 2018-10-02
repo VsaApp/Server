@@ -91,17 +91,25 @@ this.getVP = (today, callback) => {
                   }
                   data.unit = parseInt(text.split(' ')[1].slice(0, -1));
                 } else if (j === 1) {
-                  text = text.replace('\n', '').replace('(', '').replace(')', '');
+                  text = text.replace(/\n/g, ' ').replace('(', '').replace(')', '');
+                  while (text.includes('  ')) {
+                    text = text.replace('  ', ' ');
+                  }
                   if ((text.match(/ /g) || []).length === 1) {
                     data.lesson = text.split(' ')[0].toUpperCase();
                     data.room = text.split(' ')[1].toUpperCase();
+                  } else if (text.includes('Klausur')) {
+                    data.lesson = text.split(' ')[3];
+                    data.type = text.split(' ')[4];
+                    data.changed.info = 'Klausur';
+                    data.changed.teacher = text.split(' ')[2];
+                    data.changed.room = text.split(' ')[text.split(' ').length - 1];
                   } else {
                     data.lesson = text.split(' ')[1].toUpperCase();
                     data.type = text.split(' ')[2].toUpperCase();
                     data.room = text.split(' ')[3].toUpperCase();
                   }
                 } else {
-                  // TODO: Add exams here
                   text = text.replace('\n', ' ');
                   let parsed = false;
                   while (text.includes('  ')) {
@@ -135,7 +143,9 @@ this.getVP = (today, callback) => {
                     parsed = true;
                   }
                   if (!parsed) {
-                    data.changed.info = text;
+                    if (text !== '') {
+                      data.changed.info = text;
+                    }
                   }
                   data.changed.info = data.changed.info.trim();
                 }
