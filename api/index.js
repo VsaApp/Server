@@ -78,7 +78,7 @@ if (fs.existsSync('./config/config.json')) {
 
                 function getHash(table) {
                   return new Promise((resolve, reject) => {
-                    pool.query('SELECT MD5(data) AS data FROM ' + table + ' t WHERE t.time = (SELECT MAX(subt.time) FROM ' + table + ' subt);', (error, results) => {
+                    pool.query('SELECT MD5(data) AS data FROM ' + table + ' ORDER BY time DESC LIMIT 1', (error, results) => {
                       if (error) {
                         console.log(error);
                         reject(error);
