@@ -18,12 +18,12 @@ services:
     container_name: website
     depends_on:
     - api
-  pinboard:
-    build: ./pinboard
-    ports:
-    - 9002:3000
-    - 9003:3001
-    volumes:
-    - ./pinboard/:/usr/src/app/
-    - ./config/:/usr/src/app/config/
-    container_name: pinboard
+#  pinboard:
+#    build: ./pinboard
+#    ports:
+#    - 9002:3000
+#    - 9003:3001
+#    volumes:
+#    - ./pinboard/:/usr/src/app/
+#    - ./config/:/usr/src/app/config/
+#    container_name: pinboard
