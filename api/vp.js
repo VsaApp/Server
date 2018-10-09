@@ -24,6 +24,7 @@ this.getVP = (today, callback) => {
 				const html = parser.parse(body);
 				const dateStr = html.querySelectorAll('div')[0].childNodes[0].rawText.substr(1).replace('-Klassen-Vertretungsplan für ', '').replace('Januar', 'January').replace('Februar', 'February').replace('März', 'March').replace('Mai', 'May').replace('Juni', 'June').replace('Juli', 'July').replace('Oktober', 'October').replace('Dezember', 'December');
 				const time = html.querySelectorAll('div')[1].childNodes[0].rawText.replace('Viktoriaschule Aachen, den ', '').split(' um ')[1];
+			const changeDate = html.querySelectorAll('div')[1].childNodes[0].rawText.replace('Viktoriaschule Aachen, den ', '').split(' um ')[0];
 				const date = new Date(dateStr);
 				date.setHours(date.getHours() + 1);
 				const weekday = dateStr.split(', ')[0];
@@ -44,12 +45,14 @@ this.getVP = (today, callback) => {
 						vpToday[grade] = {
 							date: date.getUTCDate() + '.' + (date.getUTCMonth() + 1) + '.' + date.getUTCFullYear(),
 							time: time,
+							update: changeDate,
 							weekday: weekday,
 							changes: []
 						};
 						vpTomorrow[grade] = {
 							date: date.getUTCDate() + '.' + (date.getUTCMonth() + 1) + '.' + date.getUTCFullYear(),
 							time: time,
+							update: changeDate,
 							weekday: weekday,
 							changes: []
 						};
