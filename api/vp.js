@@ -128,10 +128,14 @@ this.getVP = (today, callback) => {
 														room: room
 													}
 												};
-												if (today) {
-													vpToday[d.grade].changes.push(d);
+												if (k !== textArr.length / 4 - 1) {
+													if (today) {
+														vpToday[d.grade].changes.push(d);
+													} else {
+														vpTomorrow[d.grade].changes.push(d);
+													}
 												} else {
-													vpTomorrow[d.grade].changes.push(d);
+													data = d;
 												}
 											}
 										}
@@ -213,9 +217,19 @@ this.getVP = (today, callback) => {
 					}
 
 					if (today) {
+						Object.keys(vpToday).forEach(grade => {
+							vpToday[grade].changes = vpToday[grade].changes.filter(el => {
+								return !/^[A-Z]$/m.test(el.room);
+							});
+						});
 						Object.keys(vpToday).forEach(key => callback(key, vpToday[key]));
 						resolve(Object.keys(vpToday).map(key => ({grade: key, vp: vpToday[key]})));
 					} else {
+						Object.keys(vpTomorrow).forEach(grade => {
+							vpTomorrow[grade].changes = vpTomorrow[grade].changes.filter(el => {
+								return !/^[A-Z]$/m.test(el.room);
+							});
+						});
 						Object.keys(vpTomorrow).forEach(key => callback(key, vpTomorrow[key]));
 						resolve(Object.keys(vpTomorrow).map(key => ({grade: key, vp: vpTomorrow[key]})));
 					}
