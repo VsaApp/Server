@@ -15,6 +15,7 @@ const firebase = require('./firebase');
 const app = express();
 let config = {};
 let pool;
+let data = {};
 
 if (!fs.existsSync('tmp')) {
   fs.mkdirSync('tmp');
@@ -64,114 +65,44 @@ if (fs.existsSync('./config/config.json')) {
                 documents.setConfig(config);
 
                 function getLatestData(table) {
-                  return new Promise((resolve, reject) => {
-                    pool.query('SELECT data FROM ' + table + ' ORDER BY time DESC LIMIT 1', (error, results) => {
-                      if (error) {
-                        console.log(error);
-                        reject(error);
-                        return;
-                      }
-                      resolve((results[0] || {data: []}).data);
-                    });
-                  });
+                  return JSON.stringify(data[table] || {});
                 }
 
                 function getHash(table) {
-                  return new Promise((resolve, reject) => {
-                    pool.query('SELECT MD5(data) AS data FROM ' + table + ' ORDER BY time DESC LIMIT 1', (error, results) => {
-                      if (error) {
-                        console.log(error);
-                        reject(error);
-                        return;
-                      }
-                      resolve((results[0] || {data: []}).data);
-                    });
-                  });
+                  return crypto.createHash('sha256').update(getLatestData(table)).digest('hex');
                 }
 
                 app.use('/teachers/list.json', (req, res) => {
-                  getLatestData('teachers').then(data => {
-                    res.send(data);
-                  }).catch(data => {
-                    res.send(data);
-                  });
+                  res.send(getLatestData('teachers'));
                 });
                 app.use('/dates/list.json', (req, res) => {
-                  getLatestData('dates').then(data => {
-                    res.send(data);
-                  }).catch(data => {
-                    res.send(data);
-                  });
+                  res.send(getLatestData('dates'));
                 });
                 app.use('/ags/list.json', (req, res) => {
-                  getLatestData('ags').then(data => {
-                    res.send(data);
-                  }).catch(data => {
-                    res.send(data);
-                  });
+                  res.send(getLatestData('ags'));
                 });
                 app.use('/documents/list.json', (req, res) => {
-                  getLatestData('documents').then(data => {
-                    res.send(data);
-                  }).catch(data => {
-                    res.send(data);
-                  });
+                  res.send(getLatestData('documents'));
                 });
                 app.use('/sp/:grade.json', (req, res) => {
-                  getLatestData('sp').then(data => {
-                    res.send(JSON.parse(data).filter(obj => {
-                      return obj.grade === req.params.grade;
-                    })[0].plan);
-                  }).catch(data => {
-                    res.send(data);
-                  });
+                  res.send(JSON.parse(getLatestData('sp')).filter(obj => {
+                    return obj.grade === req.params.grade;
+                  })[0].plan);
                 });
                 app.use('/vp/:day/:grade.json', (req, res) => {
-                  getLatestData('vp' + req.params.day).then(data => {
-                    res.send(JSON.parse(data).filter(obj => {
-                      return obj.grade === req.params.grade;
-                    })[0].vp);
-                  }).catch(data => {
-                    res.send(data);
-                  });
+                  res.send(JSON.parse(getLatestData('vp' + req.params.day)).filter(obj => {
+                    return obj.grade === req.params.grade;
+                  })[0].vp);
                 });
                 app.use('/sums/list.json', (req, res) => {
-                  let obj = {};
-                  getHash('teachers').then(h => {
-                    obj.teachers = h;
-                    getHash('dates').then(h => {
-                      obj.dates = h;
-                      getHash('ags').then(h => {
-                        obj.ags = h;
-                        getHash('documents').then(h => {
-                          obj.documents = h;
-                          getHash('sp').then(h => {
-                            obj.sp = h;
-                            getHash('vptoday').then(h => {
-                              obj['vp/today'] = h;
-                              getHash('vptomorrow').then(h => {
-                                obj['vp/tomorrow'] = h;
-                                res.send(obj);
-                              }).catch(data => {
-                                res.send(data);
-                              });
-                            }).catch(data => {
-                              res.send(data);
-                            });
-                          }).catch(data => {
-                            res.send(data);
-                          });
-                        }).catch(data => {
-                          res.send(data);
-                        });
-                      }).catch(data => {
-                        res.send(data);
-                      });
-                    }).catch(data => {
-                      res.send(data);
-                    });
-                  }).catch(data => {
-                    res.send(data);
+                  res.send({
+                    teachers: getHash('teachers'),
+                    dates: getHash('dates'),
+                    ags: getHash('ags'),
+                    documents: getHash('documents'),
+                    sp: getHash('sp'),
+                    'vp/today': getHash('vptoday'),
+                    'vp/tomorrow': getHash('vptomorrow')
                   });
                 });
                 app.get('/validate', (req, res) => {
@@ -194,14 +125,13 @@ if (fs.existsSync('./config/config.json')) {
                   console.log('Listening on *:' + 80);
                 });
 
-                function insertData(table, data) {
-                  getLatestData(table).then(d => {
-                    if (JSON.stringify(data) !== d) {
-                      pool.query('INSERT INTO `' + table + '`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(data) + '\')', error => {
-                        if (error) throw error;
-                      });
-                    }
-                  }).catch();
+                function insertData(table, d) {
+                  if (JSON.stringify(d) !== getLatestData(table)) {
+                    data[table] = d;
+                    pool.query('INSERT INTO `' + table + '`(`time`, `data`) VALUES (' + Math.floor(Date.now() / 1000) + ',\'' + JSON.stringify(d) + '\')', error => {
+                      if (error) throw error;
+                    });
+                  }
                 }
 
                 let shorts = [];
